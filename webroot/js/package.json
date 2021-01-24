@@ -1,0 +1,21 @@
+{
+  "name": "cake-crm",
+  "version": "1.0.0",
+  "description": "Little CRM Based on CakePHP and VueJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "crm",
+    "cakephp",
+    "vuejs"
+  ],
+  "author": "iMpronta di Massimo INFUNTI",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "bootstrap": "^4.6.0",
+    "luxon": "^1.25.0"
+  }
+}
