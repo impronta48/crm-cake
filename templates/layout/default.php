@@ -83,6 +83,7 @@ use Cake\Core\Configure;
     </div>
   </div>
 
+  <?= $this->fetch('pre-vue') ?>
   <?= $this->element('v-autoload')  //Carica automaticamente lo script /theme/js/vue/{Controller}/{action}.js
   ?>
   <?= $this->fetch('script') ?>

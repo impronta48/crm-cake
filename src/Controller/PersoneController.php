@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Core\Configure;
+use Cake\I18n\FrozenTime;
 use Cake\Mailer\Mailer;
 use Cake\Routing\Asset;
 use Cake\Utility\Text;
+use EmailQueue\EmailQueue;
 
 /**
  * Persone Controller
@@ -172,42 +174,84 @@ class PersoneController extends AppController
     $invia_test = false;
     if ($this->request->is('post')) {
       $dt = $this->request->getData();
-      $res = $query->first()->toArray();
-      //Sostituisco i valori nel subject
-      $subject = Text::insert(
-        $dt['subject'],
-        $res
-      );
-      //Sostituisco i valori nel template
-      $body = Text::insert(
-        $dt['body'],
-        $res
-      );
 
+
+      if (Configure::read('MailLogo')) {
+        $logoAttachment = [
+          'logo.png' => [
+            'file' => WWW_ROOT .  Asset::imageUrl(Configure::read('MailLogo')),
+            'mimetype' => 'image/png',
+            'contentId' => '12345'
+          ]
+        ];
+      }
+
+      //Invio mail di test
       if (array_key_exists('invia-test', $dt)) {
+        $res = $query->first()->toArray();
+        $subject = Text::insert(
+          $dt['subject'],
+          $res
+        );
+        //Sostituisco i valori nel template
+        $body = Text::insert(
+          $dt['body'],
+          $res
+        );
         $mailer = new Mailer('default');
         $mailer->setFrom([$dt['sender_email'] => $dt['sender_name']])
           ->setEmailFormat('html')
           ->setTo($dt['test'])
           ->setSubject($subject)
+          ->setViewVars(['body' => $body])
           ->viewBuilder()
+          ->setTemplate('dynamic')
           ->setLayout($dt['layout']);
 
         if (Configure::read('MailLogo')) {
-          $mailer->setAttachments([
-            'logo.png' => [
-              'file' => WWW_ROOT .  Asset::imageUrl(Configure::read('MailLogo')),
-              'mimetype' => 'image/png',
-              'contentId' => '12345'
-            ]
-          ]);
+          $mailer->setAttachments($logoAttachment);
         }
 
+        $mailer->deliver();
+      } else {  //Metto le mail nella coda
 
-        $mailer->deliver($body);
+        foreach ($query as $r) {
+          $to = $r['EMail'];
+          //Se questo utente non ha la mail, ignoro
+          if (empty($to)) {
+            continue;
+          }
+
+          $subject = Text::insert(
+            $dt['subject'],
+            $r->toArray()
+          );
+          //Sostituisco i valori nel template
+          $body = Text::insert(
+            $dt['body'],
+            $r->toArray()
+          );
+
+          $data = ['body' => $body];
+          $options = [
+            'subject' => $subject,
+            'layout' => $dt['layout'],
+            'template' => 'dynamic',
+            'config' => 'default',
+            'send_at' => new FrozenTime('now'),
+            'format' => 'html',
+            'from_name' => $dt['sender_name'],
+            'from_email' => $dt['sender_email'],
+          ];
+
+          if (Configure::read('MailLogo')) {
+            $options['attachments'] = $logoAttachment;
+          }
+
+          EmailQueue::enqueue($to, $data, $options);
+        }
       }
     }
-
     $this->set('count', $query->count());
     $this->set('ids', $ids);
   }

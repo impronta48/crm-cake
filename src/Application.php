@@ -46,6 +46,8 @@ class Application extends BaseApplication
    */
   public function bootstrap(): void
   {
+        $this->addPlugin('EmailQueue');
+
     // Call parent to load bootstrap from files.
     parent::bootstrap();
 

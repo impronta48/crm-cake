@@ -16,6 +16,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
-    "luxon": "^1.25.0"
+    "luxon": "^1.25.0",
+    "vue-router": "^3.4.9"
   }
 }

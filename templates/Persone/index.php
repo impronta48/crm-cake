@@ -74,6 +74,6 @@
   </li>
 </ul>
 
-<?= $this->Html->script('node_modules/axios/dist/axios.min.js', ['block' => true]) ?>
-<?= $this->Html->script('node_modules/luxon/build/global/luxon.min.js', ['block' => true]) ?>
-<?= $this->Html->script('https://unpkg.com/vue-router/dist/vue-router.js', ['block' => true]) ?>
+<?= $this->Html->script('node_modules/axios/dist/axios.min.js', ['block' => 'pre-vue']) ?>
+<?= $this->Html->script('node_modules/luxon/build/global/luxon.min', ['block' => 'pre-vue']) ?>
+<?= $this->Html->script('node_modules/vue-router/dist/vue-router.min.js', ['block' => 'pre-vue']) ?>
