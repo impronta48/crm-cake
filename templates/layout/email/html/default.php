@@ -182,7 +182,7 @@
       <table class="outer" align="center">
         <tr>
           <td class="full-width-image">
-            <img src="cid:12345" alt="https://b2b.bikesquare.eu/" width="250">
+            <img src="cid:12345" alt="https://b2b.bikesquare.eu/" width="120">
           </td>
         </tr>
         <tr>
