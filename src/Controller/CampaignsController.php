@@ -82,6 +82,17 @@ class CampaignsController extends AppController
       ]]);
     }
 
+    $nazione = $this->request->getQuery('nazione');
+    if (!empty($nazione)) {
+      //Se c'è una virgola cerco in OR
+      if (strpos($nazione, ',')) {
+        $nazione =  array_map('trim', explode(',', $nazione));
+        $query->where(['Nazione IN' => $nazione]);
+      } else {
+        $query->where(['Nazione LIKE' => "$nazione%"]);
+      }
+    }
+
     if ($this->request->is(['post', 'put'])) {
       $dt = $this->request->getData();
 

@@ -24,7 +24,7 @@
           <tr>
             <td><?= $this->Number->format($campaign->id) ?></td>
             <td><?= h($campaign->subject) ?></td>
-            <td><?= h($campaign->querystring) ?></td>
+            <td><?= htmlspecialchars_decode($campaign->querystring) ?></td>
             <td>
               <?php if ($campaign->sent) : ?>
                 <b-badge variant="success">spedita</b-badge>
@@ -34,7 +34,7 @@
             </td>
             <td><?= h($campaign->modified) ?></td>
             <td class="actions">
-              <?= $this->Html->link(__('Edit'), ['action' => 'edit', $campaign->id]) ?>
+              <a href="/campaigns/edit/<?= $campaign->id ?>?<?= $campaign->querystring ?>">Edit</a>
               <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $campaign->id], ['confirm' => __('Are you sure you want to delete # {0}?', $campaign->id)]) ?>
             </td>
           </tr>

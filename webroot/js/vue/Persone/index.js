@@ -133,7 +133,7 @@ var app = new Vue({
             return d.toLocaleString();
         },
         search() {
-            this.$router.replace({ path: "persone", query: { q: this.q, tags: this.tags } });
+            this.$router.replace({ path: "persone", query: { q: this.q, tags: this.tags, nazione: this.nazione } });
             //const urlParams = new URLSearchParams(window.location.search);
             //this.q = urlParams.get('q');
             //this.tags = urlParams.getAll("tags");
@@ -167,6 +167,9 @@ var app = new Vue({
             let url = '?';
             if (this.q !== null) {
                 url += '&q=' + this.q;
+            }
+            if (this.nazione !== null) {
+                url += '&nazione=' + this.nazione;
             }
             if (this.tags !== null) {
                 url += '&tags[]=' + this.tags;
