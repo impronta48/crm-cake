@@ -48,6 +48,7 @@ class PersoneTable extends Table
     $this->addBehavior('Tags.Tag', [
       'taggedCounter' => false,
       'field' => 'tag_list',
+
     ]);
   }
 

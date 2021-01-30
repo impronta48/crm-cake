@@ -68,6 +68,7 @@ use Cake\Core\Configure;
       <div class="v-cloak--hidden">
         <!-- Parts that will be visible After compiled your HTML -->
         <?= $this->element('v-admin-header'); ?>
+
         <main role="main" class="container">
           <div class="mt-2"><?= $this->Flash->render() ?></div>
           <?= $this->fetch('content') ?>

@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Core\Configure;
+use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\FrozenTime;
 use Cake\Mailer\Mailer;
 use Cake\Routing\Asset;
 use Cake\Utility\Text;
 use EmailQueue\EmailQueue;
+use Exception;
+use Psy\Util\Str;
 
 /**
  * Persone Controller
@@ -38,7 +41,8 @@ class PersoneController extends AppController
     $tags = $this->request->getQuery('tags');
     if (isset($tags[0]) && is_array($tags) && !empty($tags[0])) {
       if (count($tags) == 1 && is_string($tags[0])) {
-        $tags = explode(',', $tags[0]);
+        $tagAr = explode(',', $tags[0]);
+        $tags = implode("+", $tagAr); //metto i tag in AND
       }
       $query = $this->Persone->find('tagged', ['slug' => $tags]);
     } else {
@@ -54,11 +58,29 @@ class PersoneController extends AppController
         'Persone.Cognome LIKE' => "%$q%",
         'Persone.DisplayName LIKE' => "%$q%",
         'Persone.Societa LIKE' => "%$q%",
+        'Persone.EMail LIKE' => "%$q%",
+        'Persone.Cellulare LIKE' => "%$q%",
       ]]);
     }
 
+    $nazione = $this->request->getQuery('nazione');
+    if (!empty($nazione)) {
+      //Se c'è una virgola cerco in OR
+      if (strpos($nazione, ',')) {
+        $nazione =  array_map('trim', explode(',', $nazione));
+        $query->where(['Nazione IN' => $nazione]);
+      } else {
+        $query->where(['Nazione LIKE' => "$nazione%"]);
+      }
+    }
 
-    $persone = $this->paginate($query);
+    try {
+      $persone = $this->paginate($query);
+    } catch (NotFoundException $e) {
+      // Do something here like redirecting to first or last page.
+      // $this->request->getAttribute('paging') will give you required info.
+    }
+
     $pagination = $this->Paginator->getPagingParams();
     $this->set(compact('persone', 'pagination'));
     $this->viewBuilder()->setOption('serialize', ['persone', 'pagination']);
@@ -143,116 +165,5 @@ class PersoneController extends AppController
     }
 
     return $this->redirect(['action' => 'index']);
-  }
-
-  public function sendMail()
-  {
-    //Puoi passare in post un elenco di id
-    $ids = $this->request->getData('ids');
-
-    //Se invece passi la query domina questa
-    $tags = $this->request->getQuery('tags');
-    if (isset($tags[0]) && is_array($tags) && !empty($tags[0])) {
-      if (count($tags) == 1 && is_string($tags[0])) {
-        $tags = explode(',', $tags[0]);
-      }
-      $query = $this->Persone->find('tagged', ['slug' => $tags]);
-    } else {
-      $query = $this->Persone->find();
-    }
-
-    $q = $this->request->getQuery('q');
-    if (!empty($q)) {
-      $query->where(['OR' => [
-        'Persone.Nome LIKE' => "%$q%",
-        'Persone.Cognome LIKE' => "%$q%",
-        'Persone.DisplayName LIKE' => "%$q%",
-        'Persone.Societa LIKE' => "%$q%",
-      ]]);
-    }
-
-    $invia_test = false;
-    if ($this->request->is('post')) {
-      $dt = $this->request->getData();
-
-
-      if (Configure::read('MailLogo')) {
-        $logoAttachment = [
-          'logo.png' => [
-            'file' => WWW_ROOT .  Asset::imageUrl(Configure::read('MailLogo')),
-            'mimetype' => 'image/png',
-            'contentId' => '12345'
-          ]
-        ];
-      }
-
-      //Invio mail di test
-      if (array_key_exists('invia-test', $dt)) {
-        $res = $query->first()->toArray();
-        $subject = Text::insert(
-          $dt['subject'],
-          $res
-        );
-        //Sostituisco i valori nel template
-        $body = Text::insert(
-          $dt['body'],
-          $res
-        );
-        $mailer = new Mailer('default');
-        $mailer->setFrom([$dt['sender_email'] => $dt['sender_name']])
-          ->setEmailFormat('html')
-          ->setTo($dt['test'])
-          ->setSubject($subject)
-          ->setViewVars(['body' => $body])
-          ->viewBuilder()
-          ->setTemplate('dynamic')
-          ->setLayout($dt['layout']);
-
-        if (Configure::read('MailLogo')) {
-          $mailer->setAttachments($logoAttachment);
-        }
-
-        $mailer->deliver();
-      } else {  //Metto le mail nella coda
-
-        foreach ($query as $r) {
-          $to = $r['EMail'];
-          //Se questo utente non ha la mail, ignoro
-          if (empty($to)) {
-            continue;
-          }
-
-          $subject = Text::insert(
-            $dt['subject'],
-            $r->toArray()
-          );
-          //Sostituisco i valori nel template
-          $body = Text::insert(
-            $dt['body'],
-            $r->toArray()
-          );
-
-          $data = ['body' => $body];
-          $options = [
-            'subject' => $subject,
-            'layout' => $dt['layout'],
-            'template' => 'dynamic',
-            'config' => 'default',
-            'send_at' => new FrozenTime('now'),
-            'format' => 'html',
-            'from_name' => $dt['sender_name'],
-            'from_email' => $dt['sender_email'],
-          ];
-
-          if (Configure::read('MailLogo')) {
-            $options['attachments'] = $logoAttachment;
-          }
-
-          EmailQueue::enqueue($to, $data, $options);
-        }
-      }
-    }
-    $this->set('count', $query->count());
-    $this->set('ids', $ids);
   }
 }

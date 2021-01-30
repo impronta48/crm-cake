@@ -49,9 +49,11 @@ $routes->setRouteClass(DashedRoute::class);
 $routes->scope('/', function (RouteBuilder $routes) {
   $routes->setExtensions(['json']);
   $routes->resources('Persone');
+  $routes->resources('Tags');
 });
 
 $routes->scope('/', function (RouteBuilder $builder) {
+  $builder->setExtensions(['json', 'xls']);
   /*
      * Here, we are connecting '/' (base path) to a controller called 'Pages',
      * its action called 'display', and we pass a param to select the view file

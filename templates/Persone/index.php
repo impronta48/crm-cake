@@ -1,34 +1,44 @@
-<b-form inline action="" method="GET" class="d-flex flex-column align-items-start">
-  <b-row cols="12" class="">
-    <b-col>
-      <b-form-input placeholder="Cerca" name="q" v-model="q"></b-form-input>
+<b-form inline action="" method="GET">
+  <b-container>
+    <b-row>
+      <b-col cols="3">
+        <b-form-input placeholder="Cerca" name="q" v-model="q" type="search"></b-form-input>
+      </b-col>
+      <b-col cols="5">
 
-      <b-form-tags name="tags" v-model="tags"></b-form-tags>
-      <b-button type="submit" @click.prevent="search()">Filtra</b-button>
-    </b-col>
-  </b-row>
+        <v-select placeholder="Tags" :options="tagList" name="tags" v-model="tagArray" multiple label="name" @search="fetchTags" style="width:100%">
+        </v-select>
 
-  <b-row cols="12" class="d-flex align-self-end mt-2">
-    <b-col>
-      <b-link class="btn btn-primary btn-sm" :href="`/persone/send-mail${qString}`" title="Invia mail alla lista" v-b-tooltip.hover size="sm">
-        <b-icon-envelope-fill></b-icon-envelope-fill>
-        Invia Mail
-      </b-link>
-      <b-link class="btn btn-primary btn-sm" :href="`/persone/add-tags${qString}`" title="Aggiungi tag ai selezionati" v-b-tooltip.hover size="sm">
-        <b-icon-tags>
-        </b-icon-tags> Aggiungi Tag
-      </b-link>
-      <b-link class="btn btn-primary btn-sm" href="/persone/add" title="Aggiungi una persona" v-b-tooltip.hover size="sm">
-        <b-icon-plus-circle>
-        </b-icon-plus-circle> Aggiungi Contatto
-      </b-link>
-      <b-link class="btn btn-primary btn-sm" href="/persone/delete" title="Elimina righe selezionate" v-b-tooltip.hover size="sm">
-        <b-icon-trash>
-        </b-icon-trash> Elimina
-      </b-link>
-    </b-col>
-  </b-row>
+      </b-col>
+      <b-col cols="3">
+        <b-form-input name="nazione" v-model="nazione" placeholder="Nazione" />
+      </b-col>
+      <b-col cols="1">
+        <b-button type="submit" @click.prevent="search()">Filtra</b-button>
+      </b-col>
+    </b-row>
 
+    <b-row cols="12" class="float-right mt-2">
+      <b-col>
+        <b-link class="btn btn-primary btn-sm" :href="`/campaigns/edit${qString}`" title="Invia mail alla lista" v-b-tooltip.hover size="sm">
+          <b-icon-envelope-fill></b-icon-envelope-fill>
+          Invia Mail
+        </b-link>
+        <b-link class="btn btn-primary btn-sm" :href="`/persone/add-tags${qString}`" title="Aggiungi tag ai selezionati" v-b-tooltip.hover size="sm">
+          <b-icon-tags>
+          </b-icon-tags> Aggiungi Tag
+        </b-link>
+        <b-link class="btn btn-primary btn-sm" href="/persone/add" title="Aggiungi una persona" v-b-tooltip.hover size="sm">
+          <b-icon-plus-circle>
+          </b-icon-plus-circle> Aggiungi Contatto
+        </b-link>
+        <b-link class="btn btn-primary btn-sm" href="/persone/delete" title="Elimina righe selezionate" v-b-tooltip.hover size="sm">
+          <b-icon-trash>
+          </b-icon-trash> Elimina
+        </b-link>
+      </b-col>
+    </b-row>
+  </b-container>
   <b-table :items="fetchRows" :fields="colonne" class="mt-2" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :busy.sync="isBusy" id="contacts" striped>
     <!-- A custom formatted header cell for field 'id' -->
     <template #head(id)="data">
@@ -77,3 +87,5 @@
 <?= $this->Html->script('node_modules/axios/dist/axios.min.js', ['block' => 'pre-vue']) ?>
 <?= $this->Html->script('node_modules/luxon/build/global/luxon.min', ['block' => 'pre-vue']) ?>
 <?= $this->Html->script('node_modules/vue-router/dist/vue-router.min.js', ['block' => 'pre-vue']) ?>
+<?= $this->Html->script('/js/node_modules/vue-select/dist/vue-select', ['block' => 'pre-vue']) ?>
+<?= $this->Html->css('/js/node_modules/vue-select/dist/vue-select', ['block' => true])  ?>

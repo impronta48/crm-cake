@@ -7,7 +7,7 @@ if (!isset($params['escape']) || $params['escape'] !== false) {
   $message = h($message);
 }
 ?>
-<b-alert dismissible variant="<?= h($class) ?>">
+<b-alert dismissible variant="<?= h($class) ?>" show>
   <?= $message ?>
 
   <?php if (isset($params) && isset($params['errors'])) : ?>

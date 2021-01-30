@@ -6,6 +6,7 @@ const router = new VueRouter({
 });
 
 Vue.use(router);
+Vue.component('v-select', VueSelect.VueSelect);
 
 var app = new Vue({
     router,
@@ -24,14 +25,34 @@ var app = new Vue({
                 'page': 1,
             },
             q: '',
-            tags: null,
+            tags: [],
+            tagList: [],
             sortBy: "modified",
             sortDesc: true,
             isBusy: false,
+            nazione: null,
         }
     },
     async created() {
-        //this.fetchRows();
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+
+        //Devo leggere l'url corrente
+        if (urlParams.has('q')) {
+            this.q = urlParams.get('q');
+        }
+
+        if (urlParams.has('tags[]')) {
+            this.tags = urlParams.getAll('tags[]');
+        }
+
+        if (urlParams.has('tags')) {
+            this.tags = urlParams.getAll('tags');
+        }
+
+        if (urlParams.has('nazione')) {
+            this.tags = urlParams.get('nazione');
+        }
     },
     methods: {
         isCurrentPage(page) {
@@ -50,6 +71,9 @@ var app = new Vue({
             let url = '/persone.json?&page=' + this.pagination.page;
             if (this.q !== null) {
                 url += '&q=' + this.q;
+            }
+            if (this.nazione !== null) {
+                url += '&nazione=' + this.nazione;
             }
             if (this.tags !== null) {
                 url += '&tags[]=' + this.tags;
@@ -74,6 +98,26 @@ var app = new Vue({
                 .catch(error => {
                     console.log(error);
                     return [];
+                });
+        },
+        fetchTags(search, loading) {
+            if (search == undefined) {
+                return [];
+            }
+            loading(true);
+
+            let url = '/tags.json?&search=' + search;
+            axios.get(url)
+                .then(response => {
+                    this.tagList = response.data.tags;
+                    loading(false);
+                    return;
+                })
+                .catch(error => {
+                    console.log(error);
+                    loading(false);
+                    this.tagList = [];
+                    return;
                 });
         },
         async delPersone(id) {
@@ -128,6 +172,21 @@ var app = new Vue({
                 url += '&tags[]=' + this.tags;
             }
             return url;
+        },
+        tagArray: {
+            get() {
+                return this.tags;
+            },
+            set(newValue) {
+                last = newValue[newValue.length - 1]
+                if (typeof last == 'object') {
+                    this.tags.push(last.id);
+                } else {
+                    this.tags = newValue;
+                }
+            }
         }
+
+
     }
 });
