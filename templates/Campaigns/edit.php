@@ -31,7 +31,7 @@ $default_message  = $this->Text->autoParagraph(Configure::read('DefaultMessage')
 </b-row>
 <?= $this->Form->control('layout', ['class' => 'form-control', 'value' => 'default', 'required' => true]) ?>
 <?= $this->Form->control('subject', ['class' => 'form-control', 'required' => true]) ?>
-<?= $this->Form->control('body', ['class' => 'form-control', 'type' => 'textarea', 'rows' => '10', 'value' => $default_message, 'class' => 'editor']) ?>
+<?= $this->Form->control('body', ['class' => 'form-control', 'type' => 'textarea', 'rows' => '10', 'default' => $default_message, 'class' => 'editor']) ?>
 <hr>
 <h2>Invio Test</h2>
 <b-row align-v="end">
