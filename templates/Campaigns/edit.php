@@ -7,6 +7,9 @@ $default_sender_name  = Configure::read('MailAdmin');
 $default_sender_email  = array_key_first(Configure::read('MailAdmin'));
 $default_message  = $this->Text->autoParagraph(Configure::read('DefaultMessage'));
 ?>
+
+
+
 <b-breadcrumb>
   <b-breadcrumb-item href="/persone?<?= $campaign->querystring ?>">Persone</b-breadcrumb-item>
   <b-breadcrumb-item active>Invio Mail</b-breadcrumb-item>
@@ -49,9 +52,21 @@ $default_message  = $this->Text->autoParagraph(Configure::read('DefaultMessage')
     <?= $this->Form->button('Salva bozza', ['class' => 'btn btn-success', 'name' => 'salva']) ?>
 
     <?= $this->Form->button("Invia $count email ", ['class' => 'btn btn-danger', 'name' => 'invia']) ?>
+    <?= $this->Form->button("Invia a $count_delta nuovi", ['class' => 'btn btn-danger', 'name' => 'invia-delta']) ?>
   </b-col>
 </b-row>
 <?= $this->Form->end() ?>
 
+
+<h2 class="mt-3">Stato Invio</h2>
+<div>
+  <b-table :items="destinatari">
+  </b-table>
+</div>
+
+<?= $this->Html->script('node_modules/axios/dist/axios.min.js', ['block' => 'pre-vue']) ?>
+<?= $this->Html->scriptStart(['block' => 'pre-vue']) ?>
+$campaign_id = <?= $campaign->id ?>;
+<?= $this->Html->scriptEnd(); ?>
 <?= $this->Html->script('ckeditor/ckeditor', ['block' => true]) ?>
 <?= $this->Html->script('add-ckeditor.js', ['block' => true]) ?>

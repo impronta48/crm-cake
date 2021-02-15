@@ -231,7 +231,6 @@ class PersoneTable extends Table
 
     $validator
       ->scalar('indirizzoPEC')
-      ->requirePresence('indirizzoPEC', 'create')
       ->allowEmptyString('indirizzoPEC');
 
     return $validator;

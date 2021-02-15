@@ -27,7 +27,7 @@ class PersoneController extends AppController
     parent::initialize();
 
     $this->loadComponent('Paginator');
-    //$this->Authentication->allowUnauthenticated(['getList','index','view']);
+    //$this->Authentication->allowUnauthenticated(['update']);
   }
 
 
@@ -165,5 +165,34 @@ class PersoneController extends AppController
     }
 
     return $this->redirect(['action' => 'index']);
+  }
+
+  public function update()
+  {
+    $this->autoRender = false;
+    $remoteP = $this->request->getData();
+    $email = $remoteP['EMail'];
+    if (empty($email)) {
+      throw new NotFoundException("il contatto non ha la mail");
+    }
+
+    $localP = $this->Persone->find()
+      ->where(['EMail' => $email])
+      ->first();
+
+    if (!empty($localP)) {
+      $remoteP['id'] = $localP->id;
+      $remoteP['tag_list'] = $localP->tag_list . ', ' . $remoteP['tag_list'];
+    } else {
+      $localP = $this->Persone->newEmptyEntity();
+    }
+
+    $remoteP =  $this->Persone->patchEntity($localP, $remoteP);
+    if ($this->Persone->save($remoteP)) {
+      return;
+    } else {
+      debug($remoteP->getErrors());
+      throw new Exception("Impossibile salvare");
+    }
   }
 }

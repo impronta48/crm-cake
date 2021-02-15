@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Core\Configure;
+use Cake\Datasource\ConnectionManager;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\FrozenTime;
 use Cake\Mailer\Mailer;
@@ -93,6 +94,13 @@ class CampaignsController extends AppController
       }
     }
 
+    $persone = $query->select(['id']);
+    $persone_ids = [];
+    foreach ($persone as $p) {
+      $persone_ids[] = $p->id;
+    }
+    $delta = $this->delta($id, $persone_ids);
+
     if ($this->request->is(['post', 'put'])) {
       $dt = $this->request->getData();
 
@@ -108,90 +116,31 @@ class CampaignsController extends AppController
         $this->Flash->error($msg);
       }
 
-      if (Configure::read('MailLogo')) {
-        $logoAttachment = [
-          'logo.png' => [
-            'file' => WWW_ROOT .  Asset::imageUrl(Configure::read('MailLogo')),
-            'mimetype' => 'image/png',
-            'contentId' => '12345'
-          ]
-        ];
-      }
-
       //Invio mail di test
       if (array_key_exists('invia-test', $dt)) {
-        $res = $query->first()->toArray();
-        $subject = Text::insert(
-          $dt['subject'],
-          $res
-        );
-        //Sostituisco i valori nel template
-        $body = Text::insert(
-          $dt['body'],
-          $res
-        );
-        $mailer = new Mailer('default');
-        $mailer->setFrom([$dt['sender_email'] => $dt['sender_name']])
-          ->setEmailFormat('html')
-          ->setTo($dt['test_email'])
-          ->setSubject($subject)
-          ->setViewVars(['body' => $body])
-          ->viewBuilder()
-          ->setTemplate('dynamic')
-          ->setLayout($dt['layout']);
-
-        if (Configure::read('MailLogo')) {
-          $mailer->setAttachments($logoAttachment);
-        }
-
-        $mailer->deliver();
+        $persona = $query->first();
+        $this->test($id, $persona->id);
       }
+
 
       //Metto le mail nella coda per la vera spedizione
       if (array_key_exists('invia', $dt)) {
-
-        foreach ($query as $r) {
-          $to = $r['EMail'];
-          //Se questo utente non ha la mail, ignoro
-          if (empty($to)) {
-            continue;
-          }
-
-          $subject = Text::insert(
-            $dt['subject'],
-            $r->toArray()
-          );
-          //Sostituisco i valori nel template
-          $body = Text::insert(
-            $dt['body'],
-            $r->toArray()
-          );
-
-          $data = ['body' => $body];
-          $options = [
-            'subject' => $subject,
-            'layout' => $dt['layout'],
-            'template' => 'dynamic',
-            'config' => 'default',
-            'send_at' => new FrozenTime('now'),
-            'format' => 'html',
-            'from_name' => $dt['sender_name'],
-            'from_email' => $dt['sender_email'],
-          ];
-
-          if (Configure::read('MailLogo')) {
-            $options['attachments'] = $logoAttachment;
-          }
-
-          EmailQueue::enqueue($to, $data, $options);
-        }
+        $this->sendAll($id, $persone_ids);
       }
+
+      //Metto le mail nella coda per la vera spedizione (solo di quelli che non hanno ricevuto)
+      if (array_key_exists('invia-delta', $dt)) {
+        $this->sendAll($id, $delta);
+      }
+
       //Se ero in add faccio un redirect su edit
       if (empty($id)) {
         $this->redirect([$campaign->id, '?' => $this->request->getQuery()]);
       }
     }
     $this->set('campaign', $campaign);
+    $this->set('delta', $delta);
+    $this->set('count_delta', count($delta));
     $this->set('count', $query->count());
     $this->set('ids', $ids);
   }
@@ -214,5 +163,154 @@ class CampaignsController extends AppController
     }
 
     return $this->redirect(['action' => 'index']);
+  }
+
+  public function status($id)
+  {
+    //Cerco il subject della campagna $id
+    $campaign = $this->Campaigns->get($id);
+    if (empty($campaign)) {
+      throw new NotFoundException("La campagna $id non esiste");
+    }
+    $subject = $campaign->subject;
+
+    //Cerco nella mailqueue tutti i destinatari di quella campagna e il loro stato
+    $this->loadModel('EmailQueue.EmailQueue');
+    $destinatari = $this->EmailQueue->find()
+      ->where(['subject' => $subject])
+      ->select(['email', 'sent'])
+      ->toArray();
+
+    $this->set(compact('destinatari'));
+    $this->viewBuilder()->setOption('serialize', ['destinatari']);
+  }
+
+  public function delta($id, $persone_ids)
+  {
+    //Cerco il subject della campagna $id
+    $campaign = $this->Campaigns->get($id);
+    if (empty($campaign)) {
+      throw new NotFoundException("La campagna $id non esiste");
+    }
+    $subject = $campaign->subject;
+
+    //Cerco nella mailqueue tutti i destinatari di quella campagna e il loro stato
+    $connection = ConnectionManager::get('default');
+    $pids = implode(",", $persone_ids);
+    $sql = "SELECT p.id from persone p where p.id IN ($pids) AND p.EMail not in (select email from email_queue where subject = :sub )";
+
+    $delta = $connection->execute($sql, [
+      'sub' => $subject
+    ])->fetchAll('assoc');
+
+    $persone_ids = [];
+    foreach ($delta as $p) {
+      $persone_ids[] = $p['id'];
+    }
+    //Restituisco un array di id per quei destinatari
+    return $persone_ids;
+  }
+
+  private function test($id, $persona_id)
+  {
+    $this->loadModel('Persone');
+    $persona = $this->Persone->findById($persona_id);
+    $campaign = $this->Campaigns->get($id);
+    if (empty($campaign)) {
+      throw new NotFoundException("La campagna $id non esiste");
+    }
+
+    if (Configure::read('MailLogo')) {
+      $logoAttachment = [
+        'logo.png' => [
+          'file' => WWW_ROOT .  Asset::imageUrl(Configure::read('MailLogo')),
+          'mimetype' => 'image/png',
+          'contentId' => '12345'
+        ]
+      ];
+    }
+
+    $subject = Text::insert(
+      $campaign['subject'],
+      $persona
+    );
+    //Sostituisco i valori nel template
+    $body = Text::insert(
+      $campaign['body'],
+      $persona
+    );
+    $mailer = new Mailer('default');
+    $mailer->setFrom([$campaign['sender_email'] => $campaign['sender_name']])
+      ->setEmailFormat('html')
+      ->setTo($campaign['test_email'])
+      ->setSubject($subject)
+      ->setViewVars(['body' => $body])
+      ->viewBuilder()
+      ->setTemplate('dynamic')
+      ->setLayout($campaign['layout']);
+
+    if (Configure::read('MailLogo')) {
+      $mailer->setAttachments($logoAttachment);
+    }
+
+    $mailer->deliver();
+  }
+
+  private function sendAll($id, $persone_id)
+  {
+    $this->loadModel('Persone');
+    $campaign = $this->Campaigns->get($id);
+    if (empty($campaign)) {
+      throw new NotFoundException("La campagna $id non esiste");
+    }
+
+    if (Configure::read('MailLogo')) {
+      $logoAttachment = [
+        'logo.png' => [
+          'file' => WWW_ROOT .  Asset::imageUrl(Configure::read('MailLogo')),
+          'mimetype' => 'image/png',
+          'contentId' => '12345'
+        ]
+      ];
+    }
+
+    $query = $this->Persone->find()
+      ->where(['id IN ' => $persone_id]);
+
+    foreach ($query as $r) {
+      $to = $r['EMail'];
+      //Se questo utente non ha la mail, ignoro
+      if (empty($to)) {
+        continue;
+      }
+
+      $subject = Text::insert(
+        $campaign['subject'],
+        $r->toArray()
+      );
+      //Sostituisco i valori nel template
+      $body = Text::insert(
+        $campaign['body'],
+        $r->toArray()
+      );
+
+      $data = ['body' => $body];
+      $options = [
+        'subject' => $subject,
+        'layout' => $campaign['layout'],
+        'template' => 'dynamic',
+        'config' => 'default',
+        'send_at' => new FrozenTime('now'),
+        'format' => 'html',
+        'from_name' => $campaign['sender_name'],
+        'from_email' => $campaign['sender_email'],
+      ];
+
+      if (Configure::read('MailLogo')) {
+        $options['attachments'] = $logoAttachment;
+      }
+
+      EmailQueue::enqueue($to, $data, $options);
+    }
   }
 }
