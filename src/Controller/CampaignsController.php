@@ -99,7 +99,11 @@ class CampaignsController extends AppController
     foreach ($persone as $p) {
       $persone_ids[] = $p->id;
     }
-    $delta = $this->delta($id, $persone_ids);
+    if (!empty($id)) {
+      $delta = $this->delta($id, $persone_ids);
+    } else {
+      $delta = [];
+    }
 
     if ($this->request->is(['post', 'put'])) {
       $dt = $this->request->getData();
