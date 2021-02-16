@@ -12,6 +12,7 @@ use Cake\Mailer\Mailer;
 use Cake\Routing\Asset;
 use Cake\Utility\Text;
 use EmailQueue\EmailQueue;
+use EmailQueue\Model\Table\EmailQueueTable;
 
 /**
  * Campaigns Controller
@@ -129,12 +130,32 @@ class CampaignsController extends AppController
 
       //Metto le mail nella coda per la vera spedizione
       if (array_key_exists('invia', $dt)) {
+        //Salvo la data di invio della campagna
+        $campaign->sent = FrozenTime::now();
+
         $this->sendAll($id, $persone_ids);
+
+        if ($this->Campaigns->save($campaign)) {
+          $msg = "Campagna salvata con successo";
+          $this->Flash->success($msg);
+        } else {
+          $msg = "Impossibile salvare la campagna";
+          $this->Flash->error($msg);
+        }
       }
 
       //Metto le mail nella coda per la vera spedizione (solo di quelli che non hanno ricevuto)
       if (array_key_exists('invia-delta', $dt)) {
-        $this->sendAll($id, $delta);
+        if (count($delta) > 0) {
+          $this->sendAll($id, $delta);
+          if ($this->Campaigns->save($campaign)) {
+            $msg = "Campagna salvata con successo";
+            $this->Flash->success($msg);
+          } else {
+            $msg = "Impossibile salvare la campagna";
+            $this->Flash->error($msg);
+          }
+        }
       }
 
       //Se ero in add faccio un redirect su edit
@@ -176,14 +197,9 @@ class CampaignsController extends AppController
     if (empty($campaign)) {
       throw new NotFoundException("La campagna $id non esiste");
     }
-    $subject = $campaign->subject;
-
-    //Cerco nella mailqueue tutti i destinatari di quella campagna e il loro stato
-    $this->loadModel('EmailQueue.EmailQueue');
-    $destinatari = $this->EmailQueue->find()
-      ->where(['subject' => $subject])
-      ->select(['email', 'sent'])
-      ->toArray();
+    //Cerco nella mailqueue tutti i destinatari di quella campagna e il loro stato  
+    $equ = new EmailQueueTable();
+    $destinatari = $equ->status($id)->toArray();
 
     $this->set(compact('destinatari'));
     $this->viewBuilder()->setOption('serialize', ['destinatari']);
@@ -308,6 +324,7 @@ class CampaignsController extends AppController
         'format' => 'html',
         'from_name' => $campaign['sender_name'],
         'from_email' => $campaign['sender_email'],
+        'campaign_id' => $id,
       ];
 
       if (Configure::read('MailLogo')) {

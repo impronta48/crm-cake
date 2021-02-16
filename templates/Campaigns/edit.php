@@ -59,8 +59,9 @@ $default_message  = $this->Text->autoParagraph(Configure::read('DefaultMessage')
 
 
 <h2 class="mt-3">Stato Invio</h2>
+<b-button @click="fetchRows()">Aggiorna</b-button>
 <div>
-  <b-table :items="destinatari">
+  <b-table :items="destinatari" :busy="loading">
   </b-table>
 </div>
 
