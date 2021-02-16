@@ -37,6 +37,7 @@ use Cake\Core\Configure;
   <!-- Load required Bootstrap and BootstrapVue CSS -->
   <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
   <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+  <?= $this->Html->css('style') ?>
 
   <!-- Load polyfills to support older browsers -->
   <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver" crossorigin="anonymous"></script>
@@ -55,10 +56,10 @@ use Cake\Core\Configure;
   <?= $this->fetch('css') ?>
 </head>
 
-<body class="d-flex flex-column min-vh-100">
-  <div id="app">
+<body>
+  <div id="app" class="d-flex flex-column min-vh-100">
 
-    <div v-cloak class="d-flex flex-column min-vh-100">
+    <div v-cloak class="flex-grow-1">
 
       <div class="v-cloak--inline">
         <!-- Parts that will be visible before compiled your HTML -->
@@ -75,13 +76,13 @@ use Cake\Core\Configure;
 
         </main><!-- /.container -->
       </div>
-
-      <footer class="footer">
-        <div class="float-right">
-          BikeSquare CRM
-        </div>
-      </footer>
     </div>
+
+    <footer class="footer bg-dark text-white my-auto">
+      <div class="container p-2">
+        BikeSquare CRM <small>&copy; 2021 BikeSquare srl</small>
+      </div>
+    </footer>
   </div>
 
   <?= $this->fetch('pre-vue') ?>
