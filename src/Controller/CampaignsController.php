@@ -95,6 +95,17 @@ class CampaignsController extends AppController
       }
     }
 
+    $provincia = $this->request->getQuery('provincia');
+    if (!empty($provincia)) {
+      //Se c'è una virgola cerco in OR
+      if (strpos($provincia, ',')) {
+        $provincia =  array_map('trim', explode(',', $provincia));
+        $query->where(['Provincia IN' => $provincia]);
+      } else {
+        $query->where(['Provincia' => $provincia]);
+      }
+    }
+
     $persone = $query->select(['id']);
     $persone_ids = [];
     foreach ($persone as $p) {
