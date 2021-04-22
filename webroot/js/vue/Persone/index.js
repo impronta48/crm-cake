@@ -18,6 +18,7 @@ var app = new Vue({
                 { key: 'DisplayName', sortable: true },
                 { key: 'Citta', sortable: true },
                 { key: 'Nazione', sortable: true },
+                { key: 'Provincia', sortable: true },
                 { key: 'modified', sortable: true },
                 { key: 'azioni' },
             ],
@@ -31,6 +32,12 @@ var app = new Vue({
             sortDesc: true,
             isBusy: false,
             nazione: null,
+            provincia: null,
+            selected: [],
+            persone: [],
+            selectAllStatus: false,
+            multiTags: '',
+            showAddTag: false,
         }
     },
     async created() {
@@ -52,6 +59,10 @@ var app = new Vue({
 
         if (urlParams.has('nazione')) {
             this.tags = urlParams.get('nazione');
+        }
+
+        if (urlParams.has('provincia')) {
+            this.provincia = urlParams.get('provincia');
         }
     },
     methods: {
@@ -75,6 +86,9 @@ var app = new Vue({
             if (this.nazione !== null) {
                 url += '&nazione=' + this.nazione;
             }
+            if (this.provincia !== null) {
+                url += '&provincia=' + this.provincia;
+            }
             if (this.tags !== null) {
                 url += '&tags[]=' + this.tags;
             }
@@ -88,15 +102,16 @@ var app = new Vue({
                 }
                 url += '&direction=' + s;
             }
-
+            this.selectAllStatus = false;
             let promise = axios.get(url);
             return promise.then(response => {
-                    const persone = response.data.persone;
+                    this.persone = response.data.persone;
                     this.pagination = response.data.pagination.Persone;
-                    return (persone);
+                    return (this.persone);
                 })
                 .catch(error => {
                     console.log(error);
+                    this.persone = [];
                     return [];
                 });
         },
@@ -123,24 +138,63 @@ var app = new Vue({
         async delPersone(id) {
             this.$bvModal.msgBoxConfirm("Vuoi davvero cancellare questa persona? " + id, {}).then(value => {
                 if (value) {
-                    $res = axios.delete('/persone/delete/' + id);
-                    this.fetchRows();
+                    $res = axios.delete('/persone/delete/' + id).then(() => {
+                        this.$refs.tab.refresh();
+                    });
                 }
             });
+        },
+        deleteMulti() {
+            this.$bvModal.msgBoxConfirm("Vuoi davvero cancellare le persone selezionate? ", {}).then(value => {
+                if (value) {
+                    let ids = this.getSelectedRowsIds();
+                    $res = axios.delete('/persone/delete', {
+                        data: { ids: ids },
+                    }).then(() => {
+                        this.$refs.tab.refresh();
+                    });
+                }
+            });
+
         },
         niceDate: function(dt) {
             let d = DateTime.fromISO(dt);
             return d.toLocaleString();
         },
         search() {
-            this.$router.replace({ path: "persone", query: { q: this.q, tags: this.tags, nazione: this.nazione } });
+            this.$router.replace({ path: "persone", query: { q: this.q, tags: this.tags, nazione: this.nazione, provincia: this.provincia } });
             //const urlParams = new URLSearchParams(window.location.search);
             //this.q = urlParams.get('q');
             //this.tags = urlParams.getAll("tags");
             this.$root.$emit('bv::refresh::table', 'contacts');
         },
-        selectAll() {
-            alert("seleziono tutti - ma non sono ancora pronto");
+        onRowSelected(items) {
+            this.selected = items
+        },
+        selectAllRows() {
+            if (this.selectAllStatus) {
+                this.$refs.tab.selectAllRows();
+            } else {
+                this.$refs.tab.clearSelected();
+            }
+        },
+        getSelectedRowsIds() {
+            return this.selected.map(x => x.id);
+        },
+        addTag() {
+            this.showAddTag = true;
+            this.multiTags = prompt("Inserisci i tag da aggiungere");
+            console.log(this.multiTags);
+            if (this.multiTags) {
+                let ids = this.getSelectedRowsIds();
+                $res = axios.post('/persone/add-tags', {
+                    ids: ids,
+                    tags: this.multiTags
+                }).then(() => {
+                    this.$refs.tab.refresh();
+                });
+            }
+            this.showAddTag = false;
         }
     },
     computed: {
@@ -173,6 +227,9 @@ var app = new Vue({
             }
             if (this.tags !== null) {
                 url += '&tags[]=' + this.tags;
+            }
+            if (this.provincia !== null) {
+                url += '&provincia=' + this.provincia;
             }
             return url;
         },

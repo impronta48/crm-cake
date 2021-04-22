@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -42,6 +43,7 @@ use Cake\Log\Log;
 use Cake\Mailer\Mailer;
 use Cake\Mailer\TransportFactory;
 use Cake\Routing\Router;
+use Cake\Utility\Inflector;
 use Cake\Utility\Security;
 
 /*
@@ -74,11 +76,12 @@ use Cake\Utility\Security;
  * idea to create multiple configuration files, and separate the configuration
  * that changes from configuration that does not. This makes deployment simpler.
  */
+
 try {
-    Configure::config('default', new PhpConfig());
-    Configure::load('app', 'default', false);
+  Configure::config('default', new PhpConfig());
+  Configure::load('app', 'default', false);
 } catch (\Exception $e) {
-    exit($e->getMessage() . "\n");
+  exit($e->getMessage() . "\n");
 }
 
 /*
@@ -86,7 +89,7 @@ try {
  * Notice: For security reasons app_local.php **should not** be included in your git repo.
  */
 if (file_exists(CONFIG . 'app_local.php')) {
-    Configure::load('app_local', 'default');
+  Configure::load('app_local', 'default');
 }
 
 /*
@@ -94,10 +97,10 @@ if (file_exists(CONFIG . 'app_local.php')) {
  * for a short time.
  */
 if (Configure::read('debug')) {
-    Configure::write('Cache._cake_model_.duration', '+2 minutes');
-    Configure::write('Cache._cake_core_.duration', '+2 minutes');
-    // disable router cache during development
-    Configure::write('Cache._cake_routes_.duration', '+2 seconds');
+  Configure::write('Cache._cake_model_.duration', '+2 minutes');
+  Configure::write('Cache._cake_core_.duration', '+2 minutes');
+  // disable router cache during development
+  Configure::write('Cache._cake_routes_.duration', '+2 seconds');
 }
 
 /*
@@ -122,16 +125,16 @@ ini_set('intl.default_locale', Configure::read('App.defaultLocale'));
  */
 $isCli = PHP_SAPI === 'cli';
 if ($isCli) {
-    (new ConsoleErrorHandler(Configure::read('Error')))->register();
+  (new ConsoleErrorHandler(Configure::read('Error')))->register();
 } else {
-    (new ErrorHandler(Configure::read('Error')))->register();
+  (new ErrorHandler(Configure::read('Error')))->register();
 }
 
 /*
  * Include the CLI bootstrap overrides.
  */
 if ($isCli) {
-    require __DIR__ . '/bootstrap_cli.php';
+  require __DIR__ . '/bootstrap_cli.php';
 }
 
 /*
@@ -140,19 +143,19 @@ if ($isCli) {
  */
 $fullBaseUrl = Configure::read('App.fullBaseUrl');
 if (!$fullBaseUrl) {
-    $s = null;
-    if (env('HTTPS')) {
-        $s = 's';
-    }
+  $s = null;
+  if (env('HTTPS')) {
+    $s = 's';
+  }
 
-    $httpHost = env('HTTP_HOST');
-    if (isset($httpHost)) {
-        $fullBaseUrl = 'http' . $s . '://' . $httpHost;
-    }
-    unset($httpHost, $s);
+  $httpHost = env('HTTP_HOST');
+  if (isset($httpHost)) {
+    $fullBaseUrl = 'http' . $s . '://' . $httpHost;
+  }
+  unset($httpHost, $s);
 }
 if ($fullBaseUrl) {
-    Router::fullBaseUrl($fullBaseUrl);
+  Router::fullBaseUrl($fullBaseUrl);
 }
 unset($fullBaseUrl);
 
@@ -167,14 +170,14 @@ Security::setSalt(Configure::consume('Security.salt'));
  * Setup detectors for mobile and tablet.
  */
 ServerRequest::addDetector('mobile', function ($request) {
-    $detector = new \Detection\MobileDetect();
+  $detector = new \Detection\MobileDetect();
 
-    return $detector->isMobile();
+  return $detector->isMobile();
 });
 ServerRequest::addDetector('tablet', function ($request) {
-    $detector = new \Detection\MobileDetect();
+  $detector = new \Detection\MobileDetect();
 
-    return $detector->isTablet();
+  return $detector->isTablet();
 });
 
 /*
@@ -210,5 +213,40 @@ ServerRequest::addDetector('tablet', function ($request) {
  * inflection functions.
  */
 //Inflector::rules('plural', ['/^(inflect)or$/i' => '\1ables']);
-//Inflector::rules('irregular', ['red' => 'redlings']);
-//Inflector::rules('uninflected', ['dontinflectme']);
+Inflector::rules('irregular', [
+  'area' => 'aree',
+  'progetto' => 'progetti',
+  'persona' => 'persone',
+  'cliente' => 'clienti',
+  'fornitore' => 'fornitori',
+  'azienda' => 'aziende',
+  'fattura' => 'fatture',
+  'ora' => 'ore',
+  'notaspesa' => 'notaspese',
+  'impiegato' => 'impiegati',
+  'fatturaemessa' => 'fattureemesse',
+  'fatturaricevuta' => 'fatturericevute',
+  'provenienzasoldi' => 'provenienzesoldi',
+  'rigafattura' => 'righefatture',
+  'rigaddt' => 'righeddt',
+  'rigaordine' => 'righeordini',
+  'legenda_tipo_impiegato' => 'legenda_tipi_impiegati',
+  'vettore' => 'vettori',
+  'ordine' => 'ordini',
+  'cespite' => 'cespiti',
+  'cespitecalendario' => 'cespiticalendario'
+]);
+Inflector::rules('uninflected', [
+  'attivita',
+  'legenda_stato_attivita',
+  'faseattivita',
+  'primanota',
+  'legenda_cat_spesa',
+  'legenda_mezzi',
+  'legenda_porto',
+  'legenda_causale_trasporto',
+  'legenda_tipo_documento',
+  'legenda_tipo_attivita_calendario',
+  'legenda_unita_misura',
+  'ddt',
+]);

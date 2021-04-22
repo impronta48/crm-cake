@@ -74,6 +74,17 @@ class PersoneController extends AppController
       }
     }
 
+    $provincia = $this->request->getQuery('provincia');
+    if (!empty($provincia)) {
+      //Se c'è una virgola cerco in OR
+      if (strpos($provincia, ',')) {
+        $provincia =  array_map('trim', explode(',', $provincia));
+        $query->where(['Provincia IN' => $provincia]);
+      } else {
+        $query->where(['Provincia' => $provincia]);
+      }
+    }
+
     try {
       $persone = $this->paginate($query);
     } catch (NotFoundException $e) {
@@ -157,8 +168,20 @@ class PersoneController extends AppController
   public function delete($id = null)
   {
     $this->request->allowMethod(['post', 'delete']);
-    $persone = $this->Persone->get($id);
-    if ($this->Persone->delete($persone)) {
+    if (is_null($id)) {
+      $ids = $this->request->getData('ids');
+      if (empty($ids)) {
+        throw new Exception("Nulla da cancellare");
+      }
+    } else {
+      $ids = $id;
+    }
+    $persone = $this->Persone->find()->where(['id IN' => $ids]);
+    if (empty($persone)) {
+      throw new Exception("Nulla da cancellare");
+    }
+
+    if ($this->Persone->deleteMany($persone)) {
       $this->Flash->success(__('The persone has been deleted.'));
     } else {
       $this->Flash->error(__('The persone could not be deleted. Please, try again.'));
@@ -194,5 +217,34 @@ class PersoneController extends AppController
       debug($remoteP->getErrors());
       throw new Exception("Impossibile salvare");
     }
+  }
+
+  public function addTags()
+  {
+    $this->request->allowMethod(['post', 'put']);
+    $ids = $this->request->getData('ids');
+    $tags = $this->request->getData('tags');
+    if (empty($ids) || empty($tags)) {
+      throw new Exception("Nessuna persona da taggare o nessun tag inserito");
+    }
+    $persone = $this->Persone->find()
+      ->contain(['Tags'])
+      ->where(['id IN' => $ids]);
+
+    if (empty($persone)) {
+      throw new Exception("Nessuna persona da taggare");
+    }
+
+    foreach ($persone as $p) {
+      $this->Persone->patchEntity($p, ['tag_list' =>  $p->tag_list . ", $tags"]);
+    }
+
+    if ($this->Persone->saveMany($persone)) {
+      $this->Flash->success(__('The persone has been deleted.'));
+    } else {
+      $this->Flash->error(__('The persone could not be deleted. Please, try again.'));
+    }
+
+    return $this->redirect(['action' => 'index']);
   }
 }

@@ -4,17 +4,18 @@
       <b-col cols="3">
         <b-form-input placeholder="Cerca" name="q" v-model="q" type="search"></b-form-input>
       </b-col>
-      <b-col cols="5">
-
+      <b-col cols="3">
         <v-select placeholder="Tags" :options="tagList" name="tags" v-model="tagArray" multiple label="name" @search="fetchTags" style="width:100%">
         </v-select>
-
+      </b-col>
+      <b-col cols="2">
+        <b-form-input name="provincia" v-model="provincia" placeholder="Provincia" size="2" type="text" style="width: 5em;" title="Puoi separare più sigle di Province con la virgola" v-b-tooltip.hover />
       </b-col>
       <b-col cols="3">
-        <b-form-input name="nazione" v-model="nazione" placeholder="Nazione" />
+        <b-form-input name="nazione" v-model="nazione" placeholder="Nazione" title="Puoi separare più sigle di Nazione con la virgola" v-b-tooltip.hover />
       </b-col>
       <b-col cols="1">
-        <b-button type="submit" @click.prevent="search()">Filtra</b-button>
+        <b-button class="float-right" type="submit" @click.prevent="search()">Filtra</b-button>
       </b-col>
     </b-row>
 
@@ -24,7 +25,7 @@
           <b-icon-envelope-fill></b-icon-envelope-fill>
           Invia Mail
         </b-link>
-        <b-link class="btn btn-primary btn-sm" :href="`/persone/add-tags${qString}`" title="Aggiungi tag ai selezionati" v-b-tooltip.hover size="sm">
+        <b-link class="btn btn-primary btn-sm" @click="addTag()" title="Aggiungi tag ai selezionati" v-b-tooltip.hover size="sm">
           <b-icon-tags>
           </b-icon-tags> Aggiungi Tag
         </b-link>
@@ -32,32 +33,46 @@
           <b-icon-plus-circle>
           </b-icon-plus-circle> Aggiungi Contatto
         </b-link>
-        <b-link class="btn btn-primary btn-sm" href="/persone/delete" title="Elimina righe selezionate" v-b-tooltip.hover size="sm">
+        <b-link class="btn btn-primary btn-sm" @click="deleteMulti()" title="Elimina righe selezionate" v-b-tooltip.hover size="sm">
           <b-icon-trash>
           </b-icon-trash> Elimina
         </b-link>
       </b-col>
     </b-row>
   </b-container>
-  <b-table :items="fetchRows" :fields="colonne" class="mt-2" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :busy.sync="isBusy" id="contacts" striped>
+  <b-table :items="fetchRows" :fields="colonne" class="mt-2" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :busy.sync="isBusy" id="contacts" striped ref="tab" selectable select-mode="multi" @row-selected="onRowSelected">
     <!-- A custom formatted header cell for field 'id' -->
     <template #head(id)="data">
-      <b-checkbox @change="selectAll()"></b-checkbox>
+      <b-form-checkbox id="checkbox-1" v-model="selectAllStatus" name="checkbox-1" :value="true" :unchecked-value="false" @change="selectAllRows()">
+      </b-form-checkbox>
     </template>
 
-
-    <template v-slot:cell(id)="row">
-      <b-checkbox name="id[]" :value="row.item.selected"></b-checkbox>
+    <!-- Example scoped slot for select state illustrative purposes -->
+    <template #cell(id)="{ rowSelected }">
+      <template v-if="rowSelected">
+        <span aria-hidden="true">
+          <b-icon icon="check-square"></b-icon>
+        </span>
+        <span class="sr-only">Selected</span>
+      </template>
+      <template v-else>
+        <span aria-hidden="true">
+          <b-icon icon="square"></b-icon>
+        </span>
+        <span class="sr-only">Not selected</span>
+      </template>
     </template>
+
 
     <template v-slot:cell(modified)="row">
       {{niceDate(row.item.modified)}}
     </template>
 
     <template v-slot:cell(DisplayName)="row">
-      {{row.item.DisplayName}}
+      <span v-if="row.item.DisplayName">{{row.item.DisplayName}}</span>
+      <span v-else>{{row.item.Nome}} {{row.item.Cognome}} {{row.item.Societa}}</span>
       <b-badge variant="primary" v-for="b in row.item.tag_list.split(',')" class="mr-1">{{b}}</b-badge><br>
-      <small class="text-muted">{{row.item.Nome}} {{row.item.Cognome}} {{row.item.Societa}}</small>
+      <small class="text-muted" v-if="row.item.DisplayName != `${row.item.Nome} ${row.item.Cognome}`">{{row.item.Nome}} {{row.item.Cognome}} {{row.item.Societa}}</small>
     </template>
 
     <template v-slot:cell(azioni)="row">
@@ -67,6 +82,9 @@
       <b-link class="action" @click.prevent="delPersone(row.item.id)">
         <b-icon-trash></b-icon-trash>
       </b-link>
+      <a class="action" :href="`/attivita/add/${row.item.id}`">
+        <b-icon-bullseye></b-icon-bullseye>
+      </a>
     </template>
   </b-table>
 </b-form>
