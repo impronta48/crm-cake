@@ -245,7 +245,10 @@ class CampaignsController extends AppController
   private function test($id, $persona_id)
   {
     $this->loadModel('Persone');
-    $persona = $this->Persone->findById($persona_id);
+
+    $persone = $this->Persone->findById($persona_id);
+    $persone->disableHydration();
+    $persona = $persone->first();
     $campaign = $this->Campaigns->get($id);
     if (empty($campaign)) {
       throw new NotFoundException("La campagna $id non esiste");
