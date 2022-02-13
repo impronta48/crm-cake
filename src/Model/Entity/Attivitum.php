@@ -6,7 +6,7 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Attivita Entity
+ * Attivitum Entity
  *
  * @property int $id
  * @property string $name
@@ -38,7 +38,7 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\Area $area
  * @property \App\Model\Entity\Azienda $azienda
  */
-class Attivita extends Entity
+class Attivitum extends Entity
 {
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().

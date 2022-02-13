@@ -35,8 +35,8 @@ use Cake\Core\Configure;
   <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
 
   <!-- Load required Bootstrap and BootstrapVue CSS -->
-  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
-  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+  <link type="text/css" rel="stylesheet" href="/js/node_modules/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="/js/node_modules/bootstrap-vue/dist/bootstrap-vue.min.css" />
   <?= $this->Html->css('style') ?>
 
   <!-- Load polyfills to support older browsers -->
@@ -46,11 +46,11 @@ use Cake\Core\Configure;
   <?php (Configure::read('debug') == false) ? $mn = '.min' : $mn = '';
   $mn = ''; ?>
 
-  <script src="//unpkg.com/vue@latest/dist/vue<?= $mn ?>.js"></script>
-  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+  <script src="/js/node_modules/vue/dist/vue<?= $mn ?>.js"></script>
+  <script src="/js/node_modules/bootstrap-vue/dist/bootstrap-vue.min.js"></script>
 
   <!-- Load the following for BootstrapVueIcons support -->
-  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+  <script src="/js/node_modules/bootstrap-vue/dist/bootstrap-vue-icons.min.js"></script>
 
   <?= $this->fetch('meta') ?>
   <?= $this->fetch('css') ?>
