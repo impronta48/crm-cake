@@ -12,7 +12,7 @@
       <fieldset>
         <legend>Modifica Contatto</legend>
         <?php
-        echo $this->Form->control('Nome', ['class' => 'form-control']);
+        echo $this->Form->control(__('name'), ['class' => 'form-control']);
         echo $this->Form->control('Cognome', ['class' => 'form-control']);
         echo $this->Form->control('DisplayName', ['class' => 'form-control']);
         echo $this->Form->control('tag_list', ['class' => 'form-control']);

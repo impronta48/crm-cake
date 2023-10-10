@@ -7,12 +7,16 @@ namespace App\Controller;
 use Cake\Core\Configure;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\FrozenTime;
+use Cake\Log\Log;
 use Cake\Mailer\Mailer;
 use Cake\Routing\Asset;
 use Cake\Utility\Text;
 use EmailQueue\EmailQueue;
 use Exception;
 use Psy\Util\Str;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 /**
  * Persone Controller
@@ -247,4 +251,52 @@ class PersoneController extends AppController
 
     return $this->redirect(['action' => 'index']);
   }
+
+
+  public function import()
+  {    
+    if ($this->request->is(['post'])) {      
+      $attachment = $this->request->getData('excelfile');
+      $tags = $this->request->getData('tags');
+      Log::info("Offices import - received the xls file");
+      $name = $attachment['name'];
+      $fname = $attachment['tmp_name'];
+      $error = $attachment['error'];
+
+      if ($error != 0) {
+        Log::info("Offices import - error while uploading the file" . var_export($attachment, true));
+        return $this->Flash->error(__('Errore nell\'apertura del file.'));
+      }
+
+      $filename = TMP . $name;
+
+      move_uploaded_file($fname, $filename);
+      Log::info("Offices import - file moved in correctly");
+
+      $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filename);
+      $sheetData = $spreadsheet->getActiveSheet()->toArray();
+      //La prima riga contiene i titoli e la scarto
+      array_shift($sheetData);
+
+      if (empty($spreadsheet)) {
+        return $this->Flash->error(__('Il file importato e vuoto.'));
+        Log::info("Offices import - the spreadshit is empty");
+      }
+
+
+      foreach ($sheetData as $participant) {      
+          $errorMsg = false;
+          try {        
+            $p = [];
+            $p['email'] = $participant[0];
+            $p['first_name'] = $participant[1] ?? null;
+            $p['last_name'] = $participant[2] ?? null;
+            $this->Persone->add($p, $tags);
+          } catch (\Exception $e) {
+            $errorMsg = $e->getMessage();
+          }
+      }
+    }
+  }
+
 }
