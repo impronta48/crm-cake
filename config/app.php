@@ -181,12 +181,15 @@ return [
      *   your application that still emit deprecations.
      */
   'Error' => [
-    'errorLevel' => E_ALL,
+    'errorLevel' => E_ALL ^ E_USER_DEPRECATED,
     'exceptionRenderer' => ExceptionRenderer::class,
     'skipLog' => [],
     'log' => true,
     'trace' => true,
-    'ignoredDeprecationPaths' => [],
+    'ignoredDeprecationPaths' => [
+        'vendors/company/contacts/*',
+        'src/Models/*',
+    ]
   ],
 
   /*
