@@ -12,11 +12,11 @@ use Cake\ORM\Entity;
  * @property string $name
  * @property int|null $progetto_id
  * @property int|null $cliente_id
- * @property \Cake\I18n\FrozenDate|null $DataPresentazione
- * @property \Cake\I18n\FrozenDate|null $DataApprovazione
- * @property \Cake\I18n\FrozenDate|null $DataInizio
- * @property \Cake\I18n\FrozenDate|null $DataFine
- * @property \Cake\I18n\FrozenDate|null $DataFinePrevista
+ * @property \Cake\I18n\Date|null $DataPresentazione
+ * @property \Cake\I18n\Date|null $DataApprovazione
+ * @property \Cake\I18n\Date|null $DataInizio
+ * @property \Cake\I18n\Date|null $DataFine
+ * @property \Cake\I18n\Date|null $DataFinePrevista
  * @property float|null $NumOre
  * @property int|null $NumOreConsuntivo
  * @property string|null $OffertaAlCliente
@@ -30,8 +30,8 @@ use Cake\ORM\Entity;
  * @property int|null $azienda_id
  * @property bool|null $chiusa
  * @property string|null $alias
- * @property \Cake\I18n\FrozenTime|null $created
- * @property \Cake\I18n\FrozenTime|null $modified
+ * @property \Cake\I18n\DateTime|null $created
+ * @property \Cake\I18n\DateTime|null $modified
  *
  * @property \App\Model\Entity\Progetto $progetto
  * @property \App\Model\Entity\Cliente $cliente
@@ -49,7 +49,7 @@ class Attivitum extends Entity
      *
      * @var array
      */
-    protected $_accessible = [
+    protected array $_accessible = [
         'name' => true,
         'progetto_id' => true,
         'cliente_id' => true,

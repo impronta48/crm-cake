@@ -18,8 +18,8 @@ use Cake\ORM\Entity;
  * @property string|null $CAP
  * @property string|null $TelefonoDomicilio
  * @property string|null $TelefonoUfficio
- * @property \Cake\I18n\FrozenDate|null $DataDiNascita
- * @property \Cake\I18n\FrozenTime|null $UltimoContatto
+ * @property \Cake\I18n\Date|null $DataDiNascita
+ * @property \Cake\I18n\DateTime|null $UltimoContatto
  * @property string|null $Nota
  * @property string|null $Titolo
  * @property string|null $Carica
@@ -34,8 +34,8 @@ use Cake\ORM\Entity;
  * @property string|null $DisplayName
  * @property string|null $piva
  * @property string|null $cf
- * @property \Cake\I18n\FrozenTime $modified
- * @property \Cake\I18n\FrozenTime $created
+ * @property \Cake\I18n\DateTime $modified
+ * @property \Cake\I18n\DateTime $created
  * @property string|null $iban
  * @property string|null $NomeBanca
  * @property string|null $altroIndirizzo
@@ -58,7 +58,7 @@ class Persone extends Entity
      *
      * @var array
      */
-    protected $_accessible = [
+    protected array $_accessible = [
         'Nome' => true,
         'Cognome' => true,
         'Indirizzo' => true,

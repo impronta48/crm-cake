@@ -35,9 +35,7 @@ class AttivitaController extends AppController
      */
     public function view($id = null)
     {
-        $attivita = $this->Attivita->get($id, [
-            'contain' => ['Progetti', 'Clienti', 'Aree', 'Aziende', 'Aliases', 'Cespiticalendario', 'Ddt', 'Faseattivita', 'Fattureemesse', 'Fatturericevute', 'Ordini', 'Primanota'],
-        ]);
+        $attivita = $this->Attivita->get($id, contain: ['Progetti', 'Clienti', 'Aree', 'Aziende', 'Aliases', 'Cespiticalendario', 'Ddt', 'Faseattivita', 'Fattureemesse', 'Fatturericevute', 'Ordini', 'Primanota']);
 
         $this->set(compact('attivita'));
     }
@@ -75,9 +73,7 @@ class AttivitaController extends AppController
      */
     public function edit($id = null)
     {
-        $attivita = $this->Attivita->get($id, [
-            'contain' => [],
-        ]);
+        $attivita = $this->Attivita->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $attivita = $this->Attivita->patchEntity($attivita, $this->request->getData());
             if ($this->Attivita->save($attivita)) {

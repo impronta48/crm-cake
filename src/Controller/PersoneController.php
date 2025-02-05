@@ -30,7 +30,7 @@ class PersoneController extends AppController
   {
     parent::initialize();
 
-    $this->loadComponent('Paginator');
+    // $this->loadComponent('Paginator');
     //$this->Authentication->allowUnauthenticated(['update']);
   }
 
@@ -48,7 +48,7 @@ class PersoneController extends AppController
         $tagAr = explode(',', $tags[0]);
         $tags = implode("+", $tagAr); //metto i tag in AND
       }
-      $query = $this->Persone->find('tagged', ['slug' => $tags]);
+      $query = $this->Persone->find('tagged', slug: $tags);
     } else {
       $query = $this->Persone->find();
     }
@@ -91,14 +91,21 @@ class PersoneController extends AppController
 
     try {
       $persone = $this->paginate($query);
+      // $persone = $result->items();
+      // $pagination = $result->pagingParams();
     } catch (NotFoundException $e) {
       // Do something here like redirecting to first or last page.
       // $this->request->getAttribute('paging') will give you required info.
     }
 
-    $pagination = $this->Paginator->getPagingParams();
+    // $pagination = $this->Paginator->getPagingParams();
+    $pagination = $persone->pagingParams();
+    
     $this->set(compact('persone', 'pagination'));
     $this->viewBuilder()->setOption('serialize', ['persone', 'pagination']);
+
+    // $this->set(compact('persone'));
+    // $this->viewBuilder()->setOption('serialize', ['persone']);
   }
 
   /**
@@ -110,9 +117,7 @@ class PersoneController extends AppController
    */
   public function view($id = null)
   {
-    $persone = $this->Persone->get($id, [
-      'contain' => ['Tag'],
-    ]);
+    $persone = $this->Persone->get($id, contain: ['Tag']);
 
     $this->set(compact('persone'));
   }
@@ -146,9 +151,7 @@ class PersoneController extends AppController
    */
   public function edit($id = null)
   {
-    $persone = $this->Persone->get($id, [
-      'contain' => ['Tags'],
-    ]);
+    $persone = $this->Persone->get($id, contain: ['Tags']);
     if ($this->request->is(['patch', 'post', 'put'])) {
       $persone = $this->Persone->patchEntity($persone, $this->request->getData());
       if ($this->Persone->save($persone)) {

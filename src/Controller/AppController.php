@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Controller\Controller;
+use Cake\View\JsonView;
 
 /**
  * Application Controller
@@ -41,7 +42,6 @@ class AppController extends Controller
     {
         parent::initialize();
 
-        $this->loadComponent('RequestHandler');
         $this->loadComponent('Flash');
 
         /*
@@ -50,4 +50,12 @@ class AppController extends Controller
          */
         //$this->loadComponent('FormProtection');
     }
+
+    public function viewClasses(): array
+    {
+        return [JsonView::class, 
+            // XslView::class
+        ];
+    }
+
 }

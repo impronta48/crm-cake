@@ -29,11 +29,8 @@ class CampaignsController extends AppController
    */
   public function index()
   {
-    $this->paginate = [
-      'contain' => ['Users'],
-      'order' => ['Campaigns.id DESC'],
-    ];
-    $campaigns = $this->paginate($this->Campaigns);
+    $query = $this->Campaigns->find()->contain(['Users'])->order(['Campaigns.id DESC']);
+    $campaigns = $this->paginate($query);
 
     $this->set(compact('campaigns'));
   }
@@ -142,7 +139,7 @@ class CampaignsController extends AppController
       //Metto le mail nella coda per la vera spedizione
       if (array_key_exists('invia', $dt)) {
         //Salvo la data di invio della campagna
-        $campaign->sent = FrozenTime::now();
+        $campaign->sent = \Cake\I18n\DateTime::now();
 
         $this->sendAll($id, $persone_ids);
 
@@ -334,7 +331,7 @@ class CampaignsController extends AppController
         'layout' => $campaign['layout'],
         'template' => 'dynamic',
         'config' => 'default',
-        'send_at' => new FrozenTime('now'),
+        'send_at' => new \Cake\I18n\DateTime('now'),
         'format' => 'html',
         'from_name' => $campaign['sender_name'],
         'from_email' => $campaign['sender_email'],

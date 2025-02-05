@@ -47,6 +47,7 @@ use Cake\Routing\Router;
 use Cake\Utility\Inflector;
 use Cake\Utility\Security;
 
+require CAKE . 'functions.php';
 /*
  * See https://github.com/josegonzalez/php-dotenv for API details.
  *

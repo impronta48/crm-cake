@@ -12,8 +12,8 @@ use Cake\ORM\Entity;
  * @property string $username
  * @property string $password
  * @property int $group_id
- * @property \Cake\I18n\FrozenTime|null $created
- * @property \Cake\I18n\FrozenTime|null $modified
+ * @property \Cake\I18n\DateTime|null $created
+ * @property \Cake\I18n\DateTime|null $modified
  * @property int|null $persona_id
  *
  * @property \App\Model\Entity\Group $group
@@ -32,7 +32,7 @@ class User extends Entity
      *
      * @var array
      */
-    protected $_accessible = [
+    protected array $_accessible = [
         'username' => true,
         'password' => true,
         'group_id' => true,
@@ -50,7 +50,7 @@ class User extends Entity
      *
      * @var array
      */
-    protected $_hidden = [
+    protected array $_hidden = [
         'password',
     ];
 }

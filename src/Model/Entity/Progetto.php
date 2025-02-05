@@ -29,7 +29,7 @@ class Progetto extends Entity
      *
      * @var array
      */
-    protected $_accessible = [
+    protected array $_accessible = [
         'name' => true,
         'DescrizioneProgetto' => true,
         'area_id' => true,

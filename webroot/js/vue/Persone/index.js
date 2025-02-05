@@ -68,18 +68,21 @@ var app = new Vue({
     methods: {
         isCurrentPage(page) {
 
-            return this.pagination.page === page;
+            // return this.pagination.page === page;
+            return this.pagination.currentPage === page;
         },
         changePage(page) {
             if (page > this.pagination.pageCount) {
                 page = this.pagination.pageCount;
             }
-            this.pagination.page = page;
+            // this.pagination.page = page;
+            this.pagination.currentPage = page;
             //Dopo la pagination esterna devo ricaricare
             this.$root.$emit('bv::refresh::table', 'contacts');
         },
         fetchRows() {
-            let url = '/persone.json?&page=' + this.pagination.page;
+            // let url = '/persone.json?&page=' + this.pagination.page;
+            let url = '/persone.json?&page=' + this.pagination.currentPage;
             if (this.q !== null) {
                 url += '&q=' + this.q;
             }
@@ -104,9 +107,15 @@ var app = new Vue({
             }
             this.selectAllStatus = false;
             let promise = axios.get(url);
+            
             return promise.then(response => {
+                    // this.persone = response.data.persone.results;
+                    this.pagination = response.data.persone.params;
+
                     this.persone = response.data.persone;
-                    this.pagination = response.data.pagination.Persone;
+                    // this.pagination = response.data.pagination.Persone;
+                    this.pagination = response.data.pagination;
+                    console.log("Cinzia: " + JSON.stringify(this.pagination));
                     return (this.persone);
                 })
                 .catch(error => {
@@ -200,7 +209,8 @@ var app = new Vue({
     computed: {
         pages: function() {
             let pages = [];
-            let from = this.pagination.page - Math.floor(this.pagination.perPage / 2);
+            // let from = this.pagination.page - Math.floor(this.pagination.perPage / 2);
+            let from = this.pagination.currentPage - Math.floor(this.pagination.perPage / 2);
 
             if (from < 1) {
                 from = 1;
