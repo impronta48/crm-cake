@@ -1,10 +1,3 @@
-<?php
+<h1>Cake CRM</h1>
 
-use Cake\Routing\Router;
-?>
-
-<h1>CRM</h1>
-
-<ul>
-  <li><a href="<?= Router::url('/persone') ?>">CRM</a></li>
-</ul>
+<p>This is the backend, kindly use the frontend. Nothing to see here.</p>

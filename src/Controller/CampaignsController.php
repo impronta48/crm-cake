@@ -22,18 +22,6 @@ use EmailQueue\Model\Table\EmailQueueTable;
  */
 class CampaignsController extends AppController
 {
-  /**
-   * Index method
-   *
-   * @return \Cake\Http\Response|null|void Renders view
-   */
-  public function index()
-  {
-    $query = $this->Campaigns->find()->contain(['Users'])->order(['Campaigns.id DESC']);
-    $campaigns = $this->paginate($query);
-
-    $this->set(compact('campaigns'));
-  }
 
 
   public function edit($id = null)
@@ -178,26 +166,7 @@ class CampaignsController extends AppController
     $this->set('ids', $ids);
   }
 
-  /**
-   * Delete method
-   *
-   * @param string|null $id Campaign id.
-   * @return \Cake\Http\Response|null|void Redirects to index.
-   * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-   */
-  public function delete($id = null)
-  {
-    $this->request->allowMethod(['post', 'delete']);
-    $campaign = $this->Campaigns->get($id);
-    if ($this->Campaigns->delete($campaign)) {
-      $this->Flash->success(__('The campaign has been deleted.'));
-    } else {
-      $this->Flash->error(__('The campaign could not be deleted. Please, try again.'));
-    }
-
-    return $this->redirect(['action' => 'index']);
-  }
-
+  
   public function status($id)
   {
     //Cerco il subject della campagna $id

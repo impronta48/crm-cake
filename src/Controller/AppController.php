@@ -29,6 +29,8 @@ use Cake\View\JsonView;
  */
 class AppController extends Controller
 {
+    use \Crud\Controller\ControllerTrait;
+
     /**
      * Initialization hook method.
      *
@@ -42,13 +44,24 @@ class AppController extends Controller
     {
         parent::initialize();
 
-        $this->loadComponent('Flash');
-
-        /*
-         * Enable the following component for recommended CakePHP form protection settings.
-         * see https://book.cakephp.org/4/en/controllers/components/form-protection.html
-         */
-        //$this->loadComponent('FormProtection');
+        //$this->loadComponent('RequestHandler');
+        $this->loadComponent('Crud.Crud', [
+            'actions' => [
+                'Crud.Index',
+                'Crud.Add',
+                'Crud.Edit',
+                'Crud.View',
+                'Crud.Delete'
+            ],
+            'listeners' => [
+                'Crud.Api',
+                'Crud.ApiPagination',
+                //'Crud.Search',          //https://crud.readthedocs.io/en/latest/listeners/search.html
+                'Crud.ApiQueryLog',     //https://crud.readthedocs.io/en/latest/listeners/api-query-log.html
+                
+            ],
+        ]);
+        
     }
 
     public function viewClasses(): array

@@ -68,10 +68,6 @@ class Application extends BaseApplication
       $this->addPlugin('DebugKit');
     }
 
-    // Load more plugins here    
-    $this->addPlugin('Notifications');
-    $this->addPlugin('Tags');
-    $this->addPlugin('EmailQueue');
   }
 
   /**

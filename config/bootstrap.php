@@ -99,8 +99,7 @@ if (file_exists(CONFIG . 'app_local.php')) {
  * for a short time.
  */
 if (Configure::read('debug')) {
-  Configure::write('Cache._cake_model_.duration', '+2 minutes');
-  Configure::write('Cache._cake_core_.duration', '+2 minutes');
+  Configure::write('Cache._cake_model_.duration', '+2 minutes');  
   // disable router cache during development
   Configure::write('Cache._cake_routes_.duration', '+2 seconds');
 }
@@ -183,6 +182,39 @@ ServerRequest::addDetector('tablet', function ($request) {
 
   return $detector->isTablet();
 });
+
+// Get the API whitelist. If this is empty, all requests will have CORS enabled
+$api_whitelist = Configure::read('api-whitelist');
+
+// header('Access-Control-Allow-Methods: POST, GET, PUT, PATCH, DELETE, OPTIONS');
+// header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, Accept, Accept-Encoding, Accept-Language');
+// header('Access-Control-Allow-Type: application/json');
+
+if (isset($_SERVER['HTTP_ORIGIN']) && (empty($api_whitelist) || in_array($_SERVER['HTTP_ORIGIN'], $api_whitelist))) {
+  header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+} else if (isset($_SERVER['HTTP_REFERER']) && (empty($api_whitelist) || in_array($_SERVER['HTTP_REFERER'], $api_whitelist))) {
+  header("Access-Control-Allow-Origin: {$_SERVER['HTTP_REFERER']}");
+} else {
+  header('Access-Control-Allow-Origin: * ');
+}
+
+if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
+  header("Access-Control-Allow-Methods: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']}, OPTIONS");
+} else {  
+  header('Access-Control-Allow-Methods: *');
+}
+
+if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
+  header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+} else {
+  header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, Accept, Accept-Encoding, Accept-Language');
+}
+
+header('Access-Control-Allow-Credentials: true');
+
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+  exit(0);
+}
 
 /*
  * You can set whether the ORM uses immutable or mutable Time types.

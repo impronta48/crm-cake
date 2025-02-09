@@ -4,19 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Http\Exception\NotFoundException;
-use Cake\I18n\FrozenTime;
 use Cake\Log\Log;
-use Cake\Mailer\Mailer;
-use Cake\Routing\Asset;
-use Cake\Utility\Text;
-use EmailQueue\EmailQueue;
 use Exception;
-use Psy\Util\Str;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+
 
 /**
  * Persone Controller
@@ -40,7 +31,7 @@ class PersoneController extends AppController
    *
    * @return \Cake\Http\Response|null|void Renders view
    */
-  public function index()
+/*   public function index()
   {
     $tags = $this->request->getQuery('tags');
     if (isset($tags[0]) && is_array($tags) && !empty($tags[0])) {
@@ -106,7 +97,7 @@ class PersoneController extends AppController
 
     // $this->set(compact('persone'));
     // $this->viewBuilder()->setOption('serialize', ['persone']);
-  }
+  } */
 
   /**
    * View method

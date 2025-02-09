@@ -53,7 +53,7 @@ return [
     //'defaultLocale' => env('APP_DEFAULT_LOCALE', 'en_US'),
     'defaultLocale' => env('APP_DEFAULT_LOCALE', 'it_IT'),
     'defaultTimezone' => env('APP_DEFAULT_TIMEZONE', 'UTC'),
-    'base' => false,
+    'base' => '/api',
     'dir' => 'src',
     'webroot' => 'webroot',
     'wwwRoot' => WWW_ROOT,
@@ -109,9 +109,9 @@ return [
          * Duration will be set to '+2 minutes' in bootstrap.php when debug = true
          * If you set 'className' => 'Null' core cache will be disabled.
          */
-    '_cake_core_' => [
+    '_cake_translations_' => [
       'className' => FileEngine::class,
-      'prefix' => 'myapp_cake_core_',
+      'prefix' => '_cake_translations_',
       'path' => CACHE . 'persistent' . DS,
       'serialize' => true,
       'duration' => '+1 years',
@@ -410,5 +410,9 @@ return [
      */
   'Session' => [
     'defaults' => 'php',
+  ],
+
+  'api-whitelist' => [
+    'https://l.crm.bikesquare.eu',
   ],
 ];
