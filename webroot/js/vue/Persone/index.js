@@ -115,7 +115,7 @@ var app = new Vue({
                     this.persone = response.data.persone;
                     // this.pagination = response.data.pagination.Persone;
                     this.pagination = response.data.pagination;
-                    console.log("Cinzia: " + JSON.stringify(this.pagination));
+                    console.log("pagination: " + JSON.stringify(this.pagination));
                     return (this.persone);
                 })
                 .catch(error => {
