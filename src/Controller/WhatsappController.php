@@ -128,8 +128,16 @@ class WhatsappController extends AppController
         // $user = $this->request->getQuery('user');
         // $message = $this->request->getQuery('message');
 
+        $session = $this->request->getData('session');
         $user = $this->request->getData('user');
         $message = $this->request->getData('message');
+
+        if ($session === null || trim($session) ==='') {
+            $respData = $this->getErrorResponse('Invalid parameters');
+            return $this->response
+                ->withType('json')
+                ->withStringBody(json_encode($respData));
+        }
 
         if ($user === null || trim($user) ==='') {
             $respData = $this->getErrorResponse('Invalid parameters');
@@ -148,7 +156,7 @@ class WhatsappController extends AppController
         try {
             $http = new Client();
 
-            $url = $this->getUrl('/b2rm/messages/send');
+            $url = $this->getUrl('/'.$session.'/messages/send');
             $headers = $this->getHeaders();
 
             $data = [
@@ -171,6 +179,81 @@ class WhatsappController extends AppController
             Log::error("Error: " . json_encode($e));
             $respData = $this->getErrorResponse('Error in Add Session');
         }
+
+        // $this->set(compact('data'));
+        // $this->viewBuilder()->setOption('serialize', ['data']);
+
+        return $this->response
+            ->withType('json')
+            ->withStringBody(json_encode($respData));
+    }
+
+    public function receive()
+    {
+        $this->autoRender = false;
+
+        $respData = [
+            'success' => true,
+            'data' => [] 
+        ];
+
+        $data = $this->request->getData();
+        Log::info("Cinzia receive: " . $data);
+        
+        // $user = $this->request->getQuery('user');
+        // $message = $this->request->getQuery('message');
+
+        // $session = $this->request->getData('session');
+        // $user = $this->request->getData('user');
+        // $message = $this->request->getData('message');
+
+        // if ($session === null || trim($session) ==='') {
+        //     $respData = $this->getErrorResponse('Invalid parameters');
+        //     return $this->response
+        //         ->withType('json')
+        //         ->withStringBody(json_encode($respData));
+        // }
+
+        // if ($user === null || trim($user) ==='') {
+        //     $respData = $this->getErrorResponse('Invalid parameters');
+        //     return $this->response
+        //         ->withType('json')
+        //         ->withStringBody(json_encode($respData));
+        // }
+
+        // if ($message === null || trim($message) ==='') {
+        //     $respData = $this->getErrorResponse('Invalid parameters');
+        //     return $this->response
+        //         ->withType('json')
+        //         ->withStringBody(json_encode($respData));
+        // }
+
+        // try {
+        //     $http = new Client();
+
+        //     $url = $this->getUrl('/'.$session.'/messages/send');
+        //     $headers = $this->getHeaders();
+
+        //     $data = [
+        //                 "jid" => $user . "@s.whatsapp.net",  //numero deve iniziare con 39
+        //                 "type" => "number",
+        //                 "message" => [
+        //                     "text" => $message
+        //                 ]
+        //             ];
+
+        //     $response = $http->post($url, json_encode($data), ['type' => 'json', 'headers' => $headers]);
+        //     if ($response->isSuccess()) {
+        //         $body = $response->getBody()->getContents();
+        //         $respData = json_decode($body, true);
+        //     } else {
+        //         $respData = $this->getErrorResponse('Error in Add Session');
+        //     }
+        // }
+        // catch (NetworkException $e) {
+        //     Log::error("Error: " . json_encode($e));
+        //     $respData = $this->getErrorResponse('Error in Add Session');
+        // }
 
         // $this->set(compact('data'));
         // $this->viewBuilder()->setOption('serialize', ['data']);

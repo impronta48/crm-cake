@@ -8,7 +8,6 @@ use Cake\Http\Exception\NotFoundException;
 use Cake\Log\Log;
 use Exception;
 
-
 /**
  * Persone Controller
  *
@@ -20,18 +19,14 @@ class PersoneController extends AppController
   public function initialize(): void
   {
     parent::initialize();
-
-    // $this->loadComponent('Paginator');
-    //$this->Authentication->allowUnauthenticated(['update']);
   }
-
 
   /**
    * Index method
    *
    * @return \Cake\Http\Response|null|void Renders view
    */
-/*   public function index()
+  /* public function index()
   {
     $tags = $this->request->getQuery('tags');
     if (isset($tags[0]) && is_array($tags) && !empty($tags[0])) {
@@ -97,7 +92,7 @@ class PersoneController extends AppController
 
     // $this->set(compact('persone'));
     // $this->viewBuilder()->setOption('serialize', ['persone']);
-  } */
+  }*/
 
   /**
    * View method
@@ -106,12 +101,12 @@ class PersoneController extends AppController
    * @return \Cake\Http\Response|null|void Renders view
    * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
    */
-  public function view($id = null)
-  {
-    $persone = $this->Persone->get($id, contain: ['Tag']);
+  // public function view($id = null)
+  // {
+  //   $persone = $this->Persone->get($id, contain: ['Tag']);
 
-    $this->set(compact('persone'));
-  }
+  //   $this->set(compact('persone'));
+  // }
 
   /**
    * Add method
@@ -140,21 +135,21 @@ class PersoneController extends AppController
    * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
    * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
    */
-  public function edit($id = null)
-  {
-    $persone = $this->Persone->get($id, contain: ['Tags']);
-    if ($this->request->is(['patch', 'post', 'put'])) {
-      $persone = $this->Persone->patchEntity($persone, $this->request->getData());
-      if ($this->Persone->save($persone)) {
-        $this->Flash->success(__('The persone has been saved.'));
+  // public function edit($id = null)
+  // {
+  //   $persone = $this->Persone->get($id, contain: ['Tags']);
+  //   if ($this->request->is(['patch', 'post', 'put'])) {
+  //     $persone = $this->Persone->patchEntity($persone, $this->request->getData());
+  //     if ($this->Persone->save($persone)) {
+  //       $this->Flash->success(__('The persone has been saved.'));
 
-        return $this->redirect(['action' => 'index']);
-      }
-      $this->Flash->error(__('The persone could not be saved. Please, try again.'));
-    }
-    $tags = $this->Persone->Tags->find('list', ['keyField' => 'slug']);
-    $this->set(compact('persone'));
-  }
+  //       return $this->redirect(['action' => 'index']);
+  //     }
+  //     $this->Flash->error(__('The persone could not be saved. Please, try again.'));
+  //   }
+  //   $tags = $this->Persone->Tags->find('list', ['keyField' => 'slug']);
+  //   $this->set(compact('persone'));
+  // }
 
   /**
    * Delete method
@@ -163,59 +158,76 @@ class PersoneController extends AppController
    * @return \Cake\Http\Response|null|void Redirects to index.
    * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
    */
-  public function delete($id = null)
-  {
-    $this->request->allowMethod(['post', 'delete']);
-    if (is_null($id)) {
-      $ids = $this->request->getData('ids');
-      if (empty($ids)) {
-        throw new Exception("Nulla da cancellare");
-      }
-    } else {
-      $ids = $id;
-    }
-    $persone = $this->Persone->find()->where(['id IN' => $ids]);
-    if (empty($persone)) {
-      throw new Exception("Nulla da cancellare");
-    }
+  // public function delete($id = null)
+  // {
+  //   $this->autoRender = false;
 
-    if ($this->Persone->deleteMany($persone)) {
-      $this->Flash->success(__('The persone has been deleted.'));
-    } else {
-      $this->Flash->error(__('The persone could not be deleted. Please, try again.'));
-    }
+  //   // $this->request->allowMethod(['post', 'delete']);
 
-    return $this->redirect(['action' => 'index']);
-  }
+  //   $resp = [
+  //     'success' => false,
+  //     'data' => []
+  //   ];
 
-  public function update()
-  {
-    $this->autoRender = false;
-    $remoteP = $this->request->getData();
-    $email = $remoteP['EMail'];
-    if (empty($email)) {
-      throw new NotFoundException("il contatto non ha la mail");
-    }
+  //   if (is_null($id)) {
+  //     $ids = $this->request->getData('ids');
+  //     if (empty($ids)) {
+  //       $this->set(compact('resp'));
+  //       return;
+  //     }
+  //   } else {
+  //     $ids = $id;
+  //   }
 
-    $localP = $this->Persone->find()
-      ->where(['EMail' => $email])
-      ->first();
+  //   try {
+  //     $persone = $this->Persone->find()->where(['id IN' => $ids]);
+  //     if (empty($persone)) {
+  //       $this->set(compact('resp'));
+  //       return;
+  //     }
 
-    if (!empty($localP)) {
-      $remoteP['id'] = $localP->id;
-      $remoteP['tag_list'] = $localP->tag_list . ', ' . $remoteP['tag_list'];
-    } else {
-      $localP = $this->Persone->newEmptyEntity();
-    }
+  //     if ($this->Persone->deleteMany($persone)) {
+  //       $resp['success'] = true;
+  //     }
+  //   }
+  //   catch(Exception $e) {
+  //   }
 
-    $remoteP =  $this->Persone->patchEntity($localP, $remoteP);
-    if ($this->Persone->save($remoteP)) {
-      return;
-    } else {
-      debug($remoteP->getErrors());
-      throw new Exception("Impossibile salvare");
-    }
-  }
+  //   $this->set(compact('resp'));
+  //   $this->viewBuilder()->setOption('serialize', ['resp']);
+  //   // return $this->response
+  //   //             ->withType('json')
+  //   //             ->withStringBody(json_encode($resp));
+  // }
+
+  // public function update()
+  // {
+  //   $this->autoRender = false;
+  //   $remoteP = $this->request->getData();
+  //   $email = $remoteP['EMail'];
+  //   if (empty($email)) {
+  //     throw new NotFoundException("il contatto non ha la mail");
+  //   }
+
+  //   $localP = $this->Persone->find()
+  //     ->where(['EMail' => $email])
+  //     ->first();
+
+  //   if (!empty($localP)) {
+  //     $remoteP['id'] = $localP->id;
+  //     $remoteP['tag_list'] = $localP->tag_list . ', ' . $remoteP['tag_list'];
+  //   } else {
+  //     $localP = $this->Persone->newEmptyEntity();
+  //   }
+
+  //   $remoteP =  $this->Persone->patchEntity($localP, $remoteP);
+  //   if ($this->Persone->save($remoteP)) {
+  //     return;
+  //   } else {
+  //     debug($remoteP->getErrors());
+  //     throw new Exception("Impossibile salvare");
+  //   }
+  // }
 
   public function addTags()
   {
