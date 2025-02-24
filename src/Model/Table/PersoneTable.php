@@ -48,8 +48,29 @@ class PersoneTable extends Table
     $this->addBehavior('Tags.Tag', [
       'taggedCounter' => false,
       'field' => 'tag_list',
-
     ]);
+    $this->addBehavior('Search.Search');
+  }
+
+  public function searchManager()
+  {
+    $searchManager = $this->behaviors()->Search->searchManager();
+    $searchManager->like('filter', [
+      'before' => true,
+      'after' => true,
+      'fieldMode' => 'OR',
+      'comparison' => 'LIKE',
+      'wildcardAny' => '*',
+      'wildcardOne' => '?',
+      'fields' => [
+        $this->aliasField('Nome'),
+        $this->aliasField('Cognome'),
+        $this->aliasField('EMail'),
+        $this->aliasField('Cellulare'),
+      ],
+    ]);
+
+    return $searchManager;
   }
 
   /**

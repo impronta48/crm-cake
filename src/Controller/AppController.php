@@ -56,7 +56,7 @@ class AppController extends Controller
             'listeners' => [
                 'Crud.Api',
                 'Crud.ApiPagination',
-                //'Crud.Search',          //https://crud.readthedocs.io/en/latest/listeners/search.html
+                // 'Crud.Search',          //https://crud.readthedocs.io/en/latest/listeners/search.html
                 'Crud.ApiQueryLog',     //https://crud.readthedocs.io/en/latest/listeners/api-query-log.html
                 
             ],

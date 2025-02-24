@@ -21,6 +21,21 @@ class PersoneController extends AppController
     parent::initialize();
   }
 
+  public function beforeFilter(\Cake\Event\EventInterface $event)
+  {
+    $this->Crud->addListener('Crud.Search', 'App\Controller\PersoneController', [
+      // Events to listen for and apply search finder to query.
+      'enabled' => [
+        'Crud.beforeLookup',
+        'Crud.beforePaginate'
+      ],
+      // Search collection to use
+      'collection' => 'default'
+    ]);
+
+    parent::beforeFilter($event);
+  }
+
   /**
    * Index method
    *
@@ -113,20 +128,20 @@ class PersoneController extends AppController
    *
    * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
    */
-  public function add()
-  {
-    $persone = $this->Persone->newEmptyEntity();
-    if ($this->request->is('post')) {
-      $persone = $this->Persone->patchEntity($persone, $this->request->getData());
-      if ($this->Persone->save($persone)) {
-        $this->Flash->success(__('The persone has been saved.'));
+  // public function add()
+  // {
+  //   $persone = $this->Persone->newEmptyEntity();
+  //   if ($this->request->is('post')) {
+  //     $persone = $this->Persone->patchEntity($persone, $this->request->getData());
+  //     if ($this->Persone->save($persone)) {
+  //       $this->Flash->success(__('The persone has been saved.'));
 
-        return $this->redirect(['action' => 'index']);
-      }
-      $this->Flash->error(__('The persone could not be saved. Please, try again.'));
-    }
-    $this->set(compact('persone'));
-  }
+  //       return $this->redirect(['action' => 'index']);
+  //     }
+  //     $this->Flash->error(__('The persone could not be saved. Please, try again.'));
+  //   }
+  //   $this->set(compact('persone'));
+  // }
 
   /**
    * Edit method
@@ -260,8 +275,8 @@ class PersoneController extends AppController
 
 
   public function import()
-  {    
-    if ($this->request->is(['post'])) {      
+  {
+    if ($this->request->is(['post'])) {
       $attachment = $this->request->getData('excelfile');
       $tags = $this->request->getData('tags');
       Log::info("Offices import - received the xls file");
@@ -290,19 +305,18 @@ class PersoneController extends AppController
       }
 
 
-      foreach ($sheetData as $participant) {      
-          $errorMsg = false;
-          try {        
-            $p = [];
-            $p['email'] = $participant[0];
-            $p['first_name'] = $participant[1] ?? null;
-            $p['last_name'] = $participant[2] ?? null;
-            $this->Persone->add($p, $tags);
-          } catch (\Exception $e) {
-            $errorMsg = $e->getMessage();
-          }
+      foreach ($sheetData as $participant) {
+        $errorMsg = false;
+        try {
+          $p = [];
+          $p['email'] = $participant[0];
+          $p['first_name'] = $participant[1] ?? null;
+          $p['last_name'] = $participant[2] ?? null;
+          $this->Persone->add($p, $tags);
+        } catch (\Exception $e) {
+          $errorMsg = $e->getMessage();
+        }
       }
     }
   }
-
 }

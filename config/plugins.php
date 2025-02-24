@@ -2,8 +2,8 @@
 
 return [
     'Crud' => [],
-    //'Search' => [],
     'Notifications' => [],
     'Tags' => [],
     'EmailQueue' => [],
+    'Search' => [],
 ];
