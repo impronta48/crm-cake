@@ -8,6 +8,9 @@ use Cake\Http\Exception\NotFoundException;
 use Cake\Log\Log;
 use Exception;
 
+use Cake\Collection\CollectionInterface;
+use Cake\ORM\Query\SelectQuery;
+
 /**
  * Persone Controller
  *
@@ -34,6 +37,90 @@ class PersoneController extends AppController
     ]);
 
     parent::beforeFilter($event);
+  }
+
+  public function tags()
+  {
+    // $tags = $this->Persone->Tagged->find('cloud')->toArray();
+
+    $query = $this->Persone->Tagged->find();
+    $query = $this->findCloud($query);
+    $tags = $query->toArray();
+
+    $this->set(compact('tags'));
+    $this->viewBuilder()->setOption('serialize', ['tags']);
+  }
+
+  private function findCloud(SelectQuery $query)
+  {
+    $groupBy = ['Tagged.tag_id', 'Tags.id', 'Tags.slug', 'Tags.label'];
+    $fields = $groupBy;
+    $fields['counter'] = $query->func()->count('*');
+
+    // FIXME or remove
+    // Support old code without the counter cache
+    // This is related to https://github.com/CakeDC/tags/issues/10 to work around a limitation of postgres
+    /*
+		$field = $this->getDataSource()->fields($this->Tag);
+		$field = array_merge($field, $this->getDataSource()->fields($this, null, 'Tagged.tag_id'));
+		$fields = 'DISTINCT ' . implode(',', $field);
+		$groupBy = null;
+		*/
+
+    // $options = [
+    // 	'minSize' => 10,
+    // 	'maxSize' => 20,
+    // 	'contain' => 'Tags',
+    // 	'fields' => $fields,
+    // 	'group' => $groupBy,
+    // ];
+    if ($query->clause('where') === null) {
+      $query->where(['Tags.id IS NOT' => null]);
+    }
+    if ($query->clause('order') === null) {
+      $query->orderbyAsc('Tags.label');
+    }
+
+    $query->formatResults(function (CollectionInterface $results) {
+      // $results = static::calculateWeights($results->toArray());
+
+      return $results;
+    });
+
+    return $query->find(
+      'all',
+      minSize: 10,
+      maxSize: 20,
+      contain: 'Tags',
+      fields: $fields,
+      group: $groupBy
+    );
+  }
+
+
+  public function index()
+  {
+    // Log::info('myIndex');
+
+    $this->Crud->on('beforePaginate', function (\Cake\Event\EventInterface $event) {
+      // Log::info('on beforePaginate');
+      $tags = $this->request->getQuery('tags');
+      if ($tags != null && count($tags) > 0) {
+        $event->getSubject()->query->find('tagged', slug: $tags);
+      }
+
+      $provincia = $this->request->getQuery('provincia');
+      if ($provincia != null && $provincia != '') {
+        $event->getSubject()->query->where(['Provincia' => $provincia]);
+      }
+
+      $nazione = $this->request->getQuery('nazione');
+      if ($nazione != null && $nazione != '') {
+        $event->getSubject()->query->where(['Nazione' => $nazione]);
+      }
+    });
+
+    return $this->Crud->execute();
   }
 
   /**
@@ -210,9 +297,9 @@ class PersoneController extends AppController
 
   //   $this->set(compact('resp'));
   //   $this->viewBuilder()->setOption('serialize', ['resp']);
-  //   // return $this->response
-  //   //             ->withType('json')
-  //   //             ->withStringBody(json_encode($resp));
+  //   return $this->response
+  //               ->withType('json')
+  //               ->withStringBody(json_encode($resp));
   // }
 
   // public function update()

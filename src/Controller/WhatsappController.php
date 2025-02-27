@@ -259,7 +259,7 @@ class WhatsappController extends AppController
         if($data != null) {
             
             $msg = json_encode($data);
-            Log::info("Cinzia receive: " . $msg);
+            // Log::info("WA receive: " . $msg);
           
             $ws_connection_url = $this->ws_base_url . '/?token=' . $this->ws_cake_api_key;
             \Ratchet\Client\connect($ws_connection_url)->then(function($conn) {
@@ -268,11 +268,11 @@ class WhatsappController extends AppController
                 if($data != null) {                
                     $msg = json_encode($data);
 
-                    Log::info("Cinzia send: " . $msg);
+                    // Log::info("WA send: " . $msg);
                     $conn->send($msg);
                 }
                 else {
-                    Log::info("Cinzia send Hello");
+                    Log::info("WA send Hello");
                     $conn->send("Hello!");
                 }
                 $conn->close();

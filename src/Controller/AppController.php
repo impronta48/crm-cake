@@ -47,20 +47,30 @@ class AppController extends Controller
         //$this->loadComponent('RequestHandler');
         $this->loadComponent('Crud.Crud', [
             'actions' => [
-                'Crud.Index',
+                'index' => [
+                    'className' => 'Crud.Index',
+                    'relatedModels' => true
+                ],
                 'Crud.Add',
                 'Crud.Edit',
                 'Crud.View',
-                'Crud.Delete'
+                'Crud.Delete',
+                'delete-more' => [
+                    'className' => 'Crud.Bulk/Delete'
+                ],
+                'update-more' => [
+                    'className' => 'Crud.Bulk/SetValue'
+                ]
             ],
             'listeners' => [
                 'Crud.Api',
                 'Crud.ApiPagination',
                 // 'Crud.Search',          //https://crud.readthedocs.io/en/latest/listeners/search.html
                 'Crud.ApiQueryLog',     //https://crud.readthedocs.io/en/latest/listeners/api-query-log.html
-                
             ],
         ]);
+
+        $this->Crud->addListener('relatedModels', 'Crud.RelatedModels');
         
     }
 
