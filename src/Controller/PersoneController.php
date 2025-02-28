@@ -123,6 +123,26 @@ class PersoneController extends AppController
     return $this->Crud->execute();
   }
 
+  public function updateMore() {
+    Log::info("updateMore");
+    $field = $this->request->getData('field');
+    $value = $this->request->getData('value');
+    Log::info("field: " . $field);
+    Log::info("value: " . $value);
+    
+    $this->Crud->action()->setConfig('field', $field);
+    $this->Crud->action()->setConfig('value', $value);
+
+    $this->Crud->on('beforeBulk', function (\Cake\Event\EventInterface $event) {
+      Log::info('on beforeBulk');
+      $ids = $event->getSubject()->ids;
+      Log::info('ids: ' . json_encode($ids));
+      // $event->stopPropagation();
+    });
+
+    return $this->Crud->execute();
+  }
+
   /**
    * Index method
    *
@@ -351,13 +371,14 @@ class PersoneController extends AppController
       $this->Persone->patchEntity($p, ['tag_list' =>  $p->tag_list . ", $tags"]);
     }
 
-    if ($this->Persone->saveMany($persone)) {
-      $this->Flash->success(__('The persone has been deleted.'));
-    } else {
-      $this->Flash->error(__('The persone could not be deleted. Please, try again.'));
-    }
+    $success = false;
 
-    return $this->redirect(['action' => 'index']);
+    if ($this->Persone->saveMany($persone)) {
+      $success = true;
+    } 
+
+    $this->set(compact('success'));
+    $this->viewBuilder()->setOption('serialize', ['success']);
   }
 
 
