@@ -27,15 +27,14 @@ class PersoneController extends AppController
   public function beforeFilter(\Cake\Event\EventInterface $event)
   {
     $this->Crud->addListener('Crud.Search', 'App\Controller\PersoneController', [
-      // Events to listen for and apply search finder to query.
-      'enabled' => [
-        'Crud.beforeLookup',
-        'Crud.beforePaginate'
-      ],
-      // Search collection to use
-      'collection' => 'default'
-    ]);
-
+        // Events to listen for and apply search finder to query.
+        'enabled' => [
+          'Crud.beforeLookup',
+          'Crud.beforePaginate'
+        ],
+        // Search collection to use
+        'collection' => 'default'
+      ]);
     parent::beforeFilter($event);
   }
 
@@ -97,6 +96,43 @@ class PersoneController extends AppController
     );
   }
 
+  public function indexNoPaginate() {
+    $query = $this->Persone->find('all');
+
+    $query->find('search', search: $this->request->getQueryParams());
+
+    $selection = false;
+    $tags = $this->request->getQuery('tags');
+    if ($tags != null && count($tags) > 0) {
+      $query->find('tagged', slug: $tags);
+      $selection = $selection || true;
+    }
+
+    $provincia = $this->request->getQuery('provincia');
+    if ($provincia != null && $provincia != '') {
+      $query->where(['Provincia' => $provincia]);
+      $selection = $selection || true;
+    }
+
+    $nazione = $this->request->getQuery('nazione');
+    if ($nazione != null && $nazione != '') {
+      $query->where(['Nazione' => $nazione]);
+      $selection = $selection || true;
+    }
+
+    if (!$selection) {
+      $success = false;
+      $data = [];
+    }
+    else {
+      $success = true;
+      $data = $query->toArray();
+    }
+
+    $this->set(compact('data'));
+    $this->set(compact('success'));
+    $this->viewBuilder()->setOption('serialize', ['success','data']);
+  }
 
   public function index()
   {
@@ -104,6 +140,7 @@ class PersoneController extends AppController
 
     $this->Crud->on('beforePaginate', function (\Cake\Event\EventInterface $event) {
       // Log::info('on beforePaginate');
+
       $tags = $this->request->getQuery('tags');
       if ($tags != null && count($tags) > 0) {
         $event->getSubject()->query->find('tagged', slug: $tags);

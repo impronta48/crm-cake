@@ -53,7 +53,7 @@ return [
     //'defaultLocale' => env('APP_DEFAULT_LOCALE', 'en_US'),
     'defaultLocale' => env('APP_DEFAULT_LOCALE', 'it_IT'),
     'defaultTimezone' => env('APP_DEFAULT_TIMEZONE', 'UTC'),
-    'base' => '/api',
+    // 'base' => '/api',
     'dir' => 'src',
     'webroot' => 'webroot',
     'wwwRoot' => WWW_ROOT,

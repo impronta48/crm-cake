@@ -6,7 +6,14 @@
  * into source code version control.
  */
 return [
-    /*
+
+  'App' => [
+    'base' => '/api',
+    'webroot' => '/Users/cinzia/0Work/Projects/ConTrasporto/02-Src/crm/webroot/',
+    'fullBaseUrl' => 'https://l.crm.bikesquare.eu',
+    'imageBaseUrl' => 'img/',
+  ],
+  /*
      * Debug Level:
      *
      * Production Mode:
@@ -15,80 +22,131 @@ return [
      * Development Mode:
      * true: Errors and warnings shown.
      */
-    'debug' => filter_var(env('DEBUG', true), FILTER_VALIDATE_BOOLEAN),
+  'debug' => filter_var(env('DEBUG', true), FILTER_VALIDATE_BOOLEAN),
 
-    /*
+  /*
      * Security and encryption configuration
      *
      * - salt - A random string used in security hashing methods.
      *   The salt value is also used as the encryption key.
      *   You should treat it as extremely sensitive data.
      */
-    'Security' => [
-        'salt' => env('SECURITY_SALT', '__SALT__'),
-    ],
+  'Security' => [
+    'salt' => env('SECURITY_SALT', 'f9b0f2cbb9ac87dd544044f692500f66fae9b1a6ba247e33cec221814ab7ed21'),
+  ],
 
-    /*
+  /*
      * Connection information used by the ORM to connect
      * to your application's datastores.
      *
      * See app.php for more configuration options.
      */
-    'Datasources' => [
-        'default' => [
-            'host' => 'localhost',
-            /*
+  'Datasources' => [
+    'default' => [
+      'host' => 'localhost',
+      /*
              * CakePHP will use the default DB port based on the driver selected
              * MySQL on MAMP uses port 8889, MAMP users will want to uncomment
              * the following line and set the port accordingly
              */
-            //'port' => 'non_standard_port_number',
+      //'port' => 'non_standard_port_number',
 
-            'username' => 'my_app',
-            'password' => 'secret',
+      'username' => 'max',
+      'password' => 'clo-48tilde',
 
-            'database' => 'my_app',
-            /*
+      'database' => 'igas_bikesquare',
+      /*
              * If not using the default 'public' schema with the PostgreSQL driver
              * set it here.
              */
-            //'schema' => 'myapp',
+      //'schema' => 'myapp',
 
-            /*
+      /*
              * You can use a DSN string to set the entire configuration
              */
-            'url' => env('DATABASE_URL', null),
-        ],
-
-        /*
-         * The test connection is used during the test suite.
-         */
-        'test' => [
-            'host' => 'localhost',
-            //'port' => 'non_standard_port_number',
-            'username' => 'my_app',
-            'password' => 'secret',
-            'database' => 'test_myapp',
-            //'schema' => 'myapp',
-            'url' => env('DATABASE_TEST_URL', null),
-        ],
+      'url' => env('DATABASE_URL', null),
     ],
 
     /*
+         * The test connection is used during the test suite.
+         */
+    'test' => [
+      'host' => 'localhost',
+      //'port' => 'non_standard_port_number',
+      'username' => 'my_app',
+      'password' => 'secret',
+      'database' => 'test_myapp',
+      //'schema' => 'myapp',
+      'url' => env('DATABASE_TEST_URL', null),
+    ],
+  ],
+
+  /*
      * Email configuration.
      *
      * Host and credential configuration in case you are using SmtpTransport
      *
      * See app.php for more configuration options.
      */
-    'EmailTransport' => [
-        'default' => [
-            'host' => 'localhost',
-            'port' => 25,
-            'username' => null,
-            'password' => null,
-            'client' => null,
-            'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null),
-        ],
+  'EmailTransport' => [
+    'Debug' => [
+      'className' => 'Debug',
     ],
+    'default' => [
+      'host' => 'localhost',
+      'port' => 25,
+      'username' => null,
+      'password' => null,
+      'client' => null,
+      'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null),
+    ],
+  ],
+
+  /*
+  * WhatsApp Configuration.
+  */
+  'WhatsApp' => [
+    'base_url' => 'http://localhost',
+    'port' => 4000,
+    'api_key' => 'a6bc226axxxxxxxxxxxxxx',
+  ],
+
+  /*
+   * WebSocket Configuration.
+   */
+  'WebSocket' => [
+    'base_url' => 'ws://localhost',
+    'port' => 5001,
+    'vue_api_key' => 'bb0M8F9xRLxaFRr1g4MTS4rkczuJAR8d7GO52pc7vbBFvHj8QRjSY1uURwy6GPGw',
+    'cake_api_key' => 'KieCiqCcSzzE0LDmQisPKEj1pXDTxq6cUVPGyXXvKxfAlJTTvTsZ03DCPE1IJX2W',
+  ],
+
+  /*
+   * Campaigns Configuration.
+   */  
+//   'urlPrenota' => 'http://prenota.drupalvm.test',
+//   'logo' => 'https://prenota.bikesquare.eu/img/BikeSquare_BtoB_EON.svg',
+//   'MailAdmin' => ['info@bikesquare.eu' => 'BikeSquare'],
+  'MailLogo' => "/img/logo.png",
+//   'Trello.sales' => "https://trello.com/b/QQ4rDp9N/bikesquare-sales-pipeline",
+//   'DefaultMessage' => <<<'EOT'
+//     Caro :Nome,
+//     ti scrivo per invitarti ad evento importante che si terrà
+//     il <b>5 Giugno 2020</b> alle 18 presso la nostra sede.
+
+//     Questi sono alcuni campi disponibili
+//     :Nome
+//     :Cognome
+//     :DisplayName
+//     :Citta
+//     :Provincia
+//     :Nazione
+//     :Titolo
+//     :Carica
+//     :Societa
+
+//     Un caro saluto,
+//     Lo staff
+//   EOT,
+
 ];
