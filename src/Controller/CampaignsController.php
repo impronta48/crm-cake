@@ -211,6 +211,13 @@ class CampaignsController extends AppController
         }
       }
 
+      if (!empty($id)) {
+        $delta = $this->delta($id, $persone_ids);
+      } else {
+        $delta = [];
+      }
+      $count_delta = count($delta);
+
       $success = true;
 
       $this->set(compact('success'));
@@ -243,6 +250,25 @@ class CampaignsController extends AppController
     $this->viewBuilder()->setOption('serialize', ['destinatari']);
   }
 
+  public function getdelta() 
+  {
+    $campaign_id = $this->request->getQuery('campaign_id');
+    $ids = $this->request->getQuery('persone_ids');
+
+    $delta = $this->delta($campaign_id, $ids);
+
+    $count = count($ids);
+    $count_delta = count($delta);
+
+    $success = true;
+    $this->set(compact('success'));
+    $this->set(compact('delta'));
+    $this->set(compact('count_delta'));
+    $this->set(compact('count'));
+    $this->set(compact('ids'));
+    $this->viewBuilder()->setOption('serialize', ['success', 'delta', 'count_delta', 'count', 'ids']);
+  }
+
   public function delta($id, $persone_ids)
   {
     //Cerco il subject della campagna $id
@@ -250,15 +276,18 @@ class CampaignsController extends AppController
     if (empty($campaign)) {
       throw new NotFoundException("La campagna $id non esiste");
     }
-    $subject = $campaign->subject;
+    // $subject = $campaign->subject;
+    $cid = $campaign->id;
 
     //Cerco nella mailqueue tutti i destinatari di quella campagna e il loro stato
     $connection = ConnectionManager::get('default');
     $pids = implode(",", $persone_ids);
-    $sql = "SELECT p.id from persone p where p.id IN ($pids) AND p.EMail not in (select email from email_queue where subject = :sub )";
+    // $sql = "SELECT p.id from persone p where p.id IN ($pids) AND p.EMail not in (select email from email_queue where subject = :sub )";
+    $sql = "SELECT p.id from persone p where p.id IN ($pids) AND p.EMail not in (select email from email_queue where campaign_id = :cid )";
 
     $delta = $connection->execute($sql, [
-      'sub' => $subject
+      // 'sub' => $subject
+      'cid' => $cid
     ])->fetchAll('assoc');
 
     $persone_ids = [];
@@ -342,6 +371,7 @@ class CampaignsController extends AppController
     $query = $this->Persone->find()
       ->where(['id IN ' => $persone_id]);
 
+    $result = true;
     foreach ($query as $r) {
       $to = $r['EMail'];
       //Se questo utente non ha la mail, ignoro
@@ -376,7 +406,8 @@ class CampaignsController extends AppController
         $options['attachments'] = $logoAttachment;
       }
 
-      return EmailQueue::enqueue($to, $data, $options);
+      $result = $result && (EmailQueue::enqueue($to, $data, $options));
     }
+    return $result;
   }
 }
