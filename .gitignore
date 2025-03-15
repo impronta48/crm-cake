@@ -6,6 +6,7 @@
 /tmp/*
 /vendor/*
 /webroot/js/node_modules/*
+/plugins/*
 
 # OS generated files #
 ######################
