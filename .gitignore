@@ -7,6 +7,8 @@
 /vendor/*
 /webroot/js/node_modules/*
 /plugins/*
+config/sites/*
+
 
 # OS generated files #
 ######################
@@ -45,3 +47,4 @@ nbproject/*
 .sass-cache/
 
 node_modules/**
+composer.lock
