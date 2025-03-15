@@ -84,12 +84,19 @@ require CAKE . 'functions.php';
  try {
    Configure::config('default', new PhpConfig());
    Configure::load('app', 'default', false);
-   //echo  CONFIG . $path; die;
    Configure::config('special', new PhpConfig(CONFIG . $path . DS));
-   Configure::load("settings", 'special');
+    // cerco tutti i file di condifgurazione nella cartella del sito
+    foreach (new DirectoryIterator(CONFIG  . conf_path() . '/') as $fileInfo) {
+      if ($fileInfo->getExtension() == 'php') {
+        Configure::load( $fileInfo->getBasename(".php"), 'special' );
+      }
+    }
  } catch (\Exception $e) {
    exit($e->getMessage() . "\n");
  }
+
+ 
+
 /*
  * Load an environment local configuration file to provide overrides to your configuration.
  * Notice: For security reasons app_local.php **should not** be included in your git repo.

@@ -1,9 +1,19 @@
 ## Inbox
-- [ ] Installare user auth 
+- [ ] (A) Installare user auth 
     - [ ] (https://chatgpt.com/c/67a79c9a-12c8-8011-9f94-ca8a82f93a23  (esempio interessante usando php league))
 - [ ] Installare CSV views
 - [ ] Installare XLS view
-- [ ] Spostare EmailQueue e Notification con composer invece che plugin manuali
+- [ ] Spostare Notification con composer invece che plugin manuali
+- [ ] Creare test di cypress @matteo
+
+## Fiskaly
+- [ ] Autenticazione
+- [ ] Crea un nuovo parnter
+    - [ ] Associa dati fiscali
+    - [ ] Associa punto vendita
+    - [ ] Associa cassa (pos)
+- [ ] Crea nuovo scontrino per partner
+- [ ] Annulla scontrino
 
 ## Doing
 - [ ] Testare contacts/index
@@ -11,3 +21,4 @@
 
 ## Done
 - [x] Valutare utilizzo di crud e crud api 
+- [x] Spostare EmailQueue con composer invece che plugin manuali
