@@ -15,6 +15,7 @@ use Cake\Utility\Text;
 use EmailQueue\EmailQueue;
 use EmailQueue\Model\Table\EmailQueueTable;
 use App\Model\Table\PersoneTable;
+use App\Chat\WhatsappService;
 
 /**
  * Campaigns Controller
@@ -38,9 +39,30 @@ class CampaignsController extends AppController
     return $this->Crud->execute();
   }
 
+  public function deleteMore()
+  {
+    $this->Crud->on('beforeBulk', function (\Cake\Event\EventInterface $event) {
+      // Stop the delete event, the entity will not be deleted
+      $ids = $event->getSubject()->ids;
+      $repository = $event->getSubject()->repository;
+      $campaigns = $repository->find()
+            ->where(['id IN ' => $ids])->toArray();
+      foreach($campaigns as $campaign) {
+        if ($campaign->sent !== null) {
+          $event->stopPropagation();  
+        }
+      }
+    });
+
+    return $this->Crud->execute();
+  }
+
   public function edit($id = null)
   {
     try {
+
+      $success = true;
+
       if (empty($id)) {
         $campaign = $this->Campaigns->newEmptyEntity();
         //Devo memorizzare anche i campi impliciti che non sono nel form
@@ -82,6 +104,21 @@ class CampaignsController extends AppController
         $count = 0;
         $ids = [];
 
+        //Passo dall'esterno gli ids
+        $ids = $this->request->getData('ids');
+        if ($ids == null || count($ids) <= 0) {
+          $success = false;
+          $this->set(compact('success'));
+          $this->viewBuilder()->setOption('serialize', ['success']);
+          return;
+        }
+
+        $persone_ids = $ids;
+
+        $query = $this->Persone->find();
+        $query->where(['id IN' => $ids]);
+        $count = $query->count();
+
         if (
           array_key_exists('invia-test', $dt) ||
           array_key_exists('invia', $dt) ||
@@ -91,72 +128,10 @@ class CampaignsController extends AppController
           //Invio mail di test
           if (array_key_exists('invia-test', $dt)) {
             $persona = $this->Persone->find()->first();
-            $this->test($id, $persona->id);
+            $resp = $this->test($id, $persona->id);
+            $success = $resp['success'];
+
           } else {
-
-            // //Se invece passi la query domina questa
-            // $tags = $this->request->getQuery('tags');
-            // if (isset($tags[0]) && is_array($tags) && !empty($tags[0])) {
-            //   if (count($tags) == 1 && is_string($tags[0])) {
-            //     $tags = explode(',', $tags[0]);
-            //   }
-            //   $query = $this->Persone->find('tagged', ['slug' => $tags]);
-            // } else {
-            //   $query = $this->Persone->find();
-            // }
-
-            // $q = $this->request->getQuery('q');
-            // if (!empty($q)) {
-            //   $query->where(['OR' => [
-            //     'Persone.Nome LIKE' => "%$q%",
-            //     'Persone.Cognome LIKE' => "%$q%",
-            //     'Persone.DisplayName LIKE' => "%$q%",
-            //     'Persone.Societa LIKE' => "%$q%",
-            //   ]]);
-            // }
-
-            // $nazione = $this->request->getQuery('nazione');
-            // if (!empty($nazione)) {
-            //   //Se c'è una virgola cerco in OR
-            //   if (strpos($nazione, ',')) {
-            //     $nazione =  array_map('trim', explode(',', $nazione));
-            //     $query->where(['Nazione IN' => $nazione]);
-            //   } else {
-            //     $query->where(['Nazione LIKE' => "$nazione%"]);
-            //   }
-            // }
-
-            // $provincia = $this->request->getQuery('provincia');
-            // if (!empty($provincia)) {
-            //   //Se c'è una virgola cerco in OR
-            //   if (strpos($provincia, ',')) {
-            //     $provincia =  array_map('trim', explode(',', $provincia));
-            //     $query->where(['Provincia IN' => $provincia]);
-            //   } else {
-            //     $query->where(['Provincia' => $provincia]);
-            //   }
-            // }
-
-            //Passo dall'esterno gli ids
-            $ids = $this->request->getData('ids');
-            if ($ids == null || count($ids) <= 0) {
-              $success = false;
-              $this->set(compact('success'));
-              $this->viewBuilder()->setOption('serialize', ['success']);
-              return;
-            }
-
-            $persone_ids = $ids;
-
-            $query = $this->Persone->find();
-            $query->where(['id IN' => $ids]);
-            $count = $query->count();
-            // $persone = $query->select(['id']);
-            // $persone_ids = [];
-            // foreach ($persone as $p) {
-            //   $persone_ids[] = $p->id;
-            // }
-
             //Metto le mail nella coda per la vera spedizione
             if (array_key_exists('invia', $dt)) {
               
@@ -217,8 +192,6 @@ class CampaignsController extends AppController
         $delta = [];
       }
       $count_delta = count($delta);
-
-      $success = true;
 
       $this->set(compact('success'));
       $this->set(compact('campaign'));
@@ -282,11 +255,16 @@ class CampaignsController extends AppController
     //Cerco nella mailqueue tutti i destinatari di quella campagna e il loro stato
     $connection = ConnectionManager::get('default');
     $pids = implode(",", $persone_ids);
-    // $sql = "SELECT p.id from persone p where p.id IN ($pids) AND p.EMail not in (select email from email_queue where subject = :sub )";
-    $sql = "SELECT p.id from persone p where p.id IN ($pids) AND p.EMail not in (select email from email_queue where campaign_id = :cid )";
+
+    $sql = '';
+    if($campaign['type'] == 'email') {
+      $sql = "SELECT p.id from persone p where p.id IN ($pids) AND p.EMail not in (select email from email_queue where campaign_id = :cid )";
+    }
+    else {
+      $sql = "SELECT p.id from persone p where p.id IN ($pids) AND p.id not in (select persona_id from wa_queue where campaign_id = :cid )";
+    }
 
     $delta = $connection->execute($sql, [
-      // 'sub' => $subject
       'cid' => $cid
     ])->fetchAll('assoc');
 
@@ -310,41 +288,66 @@ class CampaignsController extends AppController
       throw new NotFoundException("La campagna $id non esiste");
     }
 
-    if (Configure::read('MailLogo')) {
-      $logoAttachment = [
-        'logo.png' => [
-          // 'file' => WWW_ROOT . Asset::imageUrl(Configure::read('MailLogo')),
-          'file' => WWW_ROOT . Configure::read('MailLogo'),
-          'mimetype' => 'image/png',
-          'contentId' => '12345'
-        ]
-      ];
-    }
-
-    $subject = Text::insert(
-      $campaign['subject'],
-      $persona
-    );
     //Sostituisco i valori nel template
     $body = Text::insert(
       $campaign['body'],
       $persona
     );
-    $mailer = new Mailer('default');
-    $mailer->setFrom([$campaign['sender_email'] => $campaign['sender_name']])
-      ->setEmailFormat('html')
-      ->setTo($campaign['test_email'])
-      ->setSubject($subject)
-      ->setViewVars(['body' => $body])
-      ->viewBuilder()
-      ->setTemplate('dynamic')
-      ->setLayout($campaign['layout']);
 
-    if (Configure::read('MailLogo')) {
-      $mailer->setAttachments($logoAttachment);
+    $respData = [];
+    if($campaign['type'] == 'email') {
+      if (Configure::read('MailLogo')) {
+        $logoAttachment = [
+          'logo.png' => [
+            // 'file' => WWW_ROOT . Asset::imageUrl(Configure::read('MailLogo')),
+            'file' => WWW_ROOT . Configure::read('MailLogo'),
+            'mimetype' => 'image/png',
+            'contentId' => '12345'
+          ]
+        ];
+      }
+  
+      $subject = Text::insert(
+        $campaign['subject'],
+        $persona
+      );
+      
+      $mailer = new Mailer('default');
+      $mailer->setFrom([$campaign['sender_email'] => $campaign['sender_name']])
+        ->setEmailFormat('html')
+        ->setTo($campaign['test_email'])
+        ->setSubject($subject)
+        ->setViewVars(['body' => $body])
+        ->viewBuilder()
+        ->setTemplate('dynamic')
+        ->setLayout($campaign['layout']);
+  
+      if (Configure::read('MailLogo')) {
+        $mailer->setAttachments($logoAttachment);
+      }
+  
+      $mailer->deliver();
+      $respData = ['success' => true];
+    }
+    else {
+      $session = $campaign['wa_session'];
+      if ($session != null && $session != '') {
+        $normalizedPhone = WhatsappService::getInstance()->normalizePhone($campaign['test_email']);
+        if ($normalizedPhone != null) {
+          $user = $normalizedPhone;
+          $message = $body;
+          $respData = WhatsappService::getInstance()->sendMessage($session, $user, $message);
+        }
+        else {
+          $respData = ['success' => false];
+        }
+      }
+      else {
+        $respData = ['success' => false];
+      }
     }
 
-    $mailer->deliver();
+    return $respData;
   }
 
   private function sendAll($id, $persone_id)
@@ -357,57 +360,93 @@ class CampaignsController extends AppController
       throw new NotFoundException("La campagna $id non esiste");
     }
 
-    if (Configure::read('MailLogo')) {
-      $logoAttachment = [
-        'logo.png' => [
-          // 'file' => WWW_ROOT .  Asset::imageUrl(Configure::read('MailLogo')),
-          'file' => WWW_ROOT . Configure::read('MailLogo'),
-          'mimetype' => 'image/png',
-          'contentId' => '12345'
-        ]
-      ];
-    }
-
     $query = $this->Persone->find()
-      ->where(['id IN ' => $persone_id]);
+      ->where(['id IN ' => $persone_id])->toArray();
 
     $result = true;
-    foreach ($query as $r) {
-      $to = $r['EMail'];
-      //Se questo utente non ha la mail, ignoro
-      if (empty($to)) {
-        continue;
-      }
 
-      $subject = Text::insert(
-        $campaign['subject'],
-        $r->toArray()
-      );
-      //Sostituisco i valori nel template
-      $body = Text::insert(
-        $campaign['body'],
-        $r->toArray()
-      );
-
-      $data = ['body' => $body];
-      $options = [
-        'subject' => $subject,
-        'layout' => $campaign['layout'],
-        'template' => 'dynamic',
-        'config' => 'default',
-        'send_at' => \Cake\I18n\DateTime::now(),
-        'format' => 'html',
-        'from_name' => $campaign['sender_name'],
-        'from_email' => $campaign['sender_email'],
-        'campaign_id' => $id,
-      ];
-
+    if($campaign['type'] == 'email') {
+      // EMAIL
       if (Configure::read('MailLogo')) {
-        $options['attachments'] = $logoAttachment;
+        $logoAttachment = [
+          'logo.png' => [
+            // 'file' => WWW_ROOT .  Asset::imageUrl(Configure::read('MailLogo')),
+            'file' => WWW_ROOT . Configure::read('MailLogo'),
+            'mimetype' => 'image/png',
+            'contentId' => '12345'
+          ]
+        ];
       }
 
-      $result = $result && (EmailQueue::enqueue($to, $data, $options));
+      foreach ($query as $r) {
+        $to = $r['EMail'];
+        //Se questo utente non ha la mail, ignoro
+        if (empty($to)) {
+          continue;
+        }
+  
+        $subject = Text::insert(
+          $campaign['subject'],
+          $r->toArray()
+        );
+        //Sostituisco i valori nel template
+        $body = Text::insert(
+          $campaign['body'],
+          $r->toArray()
+        );
+  
+        $data = ['body' => $body];
+        $options = [
+          'subject' => $subject,
+          'layout' => $campaign['layout'],
+          'template' => 'dynamic',
+          'config' => 'default',
+          'send_at' => \Cake\I18n\DateTime::now(),
+          'format' => 'html',
+          'from_name' => $campaign['sender_name'],
+          'from_email' => $campaign['sender_email'],
+          'campaign_id' => $id,
+        ];
+  
+        if (Configure::read('MailLogo')) {
+          $options['attachments'] = $logoAttachment;
+        }
+  
+        $result = $result && (EmailQueue::enqueue($to, $data, $options));
+      }
     }
+    else {
+      // WhatsApp
+      foreach ($query as $r) {
+        $phone = WhatsappService::getInstance()->normalizePhone($r['Cellulare']);
+        //Se questo utente non ha il cellulare o il cellulare non è ben formattato, ignoro
+        if (empty($phone)) {
+          continue;
+        }
+  
+        //Sostituisco i valori nel template
+        $body = Text::insert(
+          $campaign['body'],
+          $r->toArray()
+        );
+  
+        $data = [
+          'phone' => $phone,
+          'persona_id' => $r['id'],
+          'wa_session' => $campaign['wa_session'], 
+          'from_name' => $campaign['sender_name'],
+          'config' => 'default',
+          'template' => 'dynamic',
+          'layout' => $campaign['layout'],
+          'body' => $body,
+          'send_at' => \Cake\I18n\DateTime::now(),
+          'campaign_id' => $id,
+        ];
+  
+        $result = $result && (WhatsappService::getInstance()->enqueue($data));
+      }
+    }
+
     return $result;
   }
 }

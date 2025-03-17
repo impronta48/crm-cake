@@ -22,11 +22,11 @@
         "dereuromark/cakephp-tags": "^2.1",
         "friendsofcake/crud": "^7.1",
         "friendsofcake/search": "^7.1",
+        "impronta48/cakephp-email-queue": "dev-cakephp5",
         "mobiledetect/mobiledetectlib": "^4.8.03",
         "phpoffice/phpspreadsheet": "^1.23",
-        "ratchet/pawl": "^0.4.1",
-        "react/socket": "^1.16",
-        "impronta48/cakephp-email-queue": "dev-cakephp5"
+        "ratchet/pawl": "0.4.1",
+        "react/socket": "^1.16"
     },
     "require-dev":
     {

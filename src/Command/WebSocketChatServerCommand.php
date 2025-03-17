@@ -8,21 +8,21 @@ use Cake\Console\ConsoleIo;
 use Ratchet\Server\IoServer;
 use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
-use App\Chat\ChatServerRatchet;
+use App\Chat\WebSocketChatServer;
 
-class WebSocketServerCommand extends Command
+class WebSocketChatServerCommand extends Command
 {
     public function execute(Arguments $args, ConsoleIo $io): int
     {
         echo "Starting...\n";
         try {
-            $port = ChatServerRatchet::getInstance()->serverPort;
+            $port = WebSocketChatServer::getInstance()->serverPort;
             echo "Server port {$port} \n";
 
             $server = IoServer::factory(
                 new HttpServer(
                     new WsServer(
-                        ChatServerRatchet::getInstance()
+                        WebSocketChatServer::getInstance()
                     )
                 ),
                 // 5001

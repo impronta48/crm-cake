@@ -47,5 +47,7 @@ class Campaign extends Entity
         'modified' => true,
         'user_id' => true,
         'user' => true,
+        'type' => true,
+        'wa_session' => true,
     ];
 }

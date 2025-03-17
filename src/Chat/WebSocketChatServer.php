@@ -7,7 +7,7 @@ use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use Cake\Core\Configure;
 
-class ChatServerRatchet implements MessageComponentInterface
+class WebSocketChatServer implements MessageComponentInterface
 {
     private static $instance = null;
     protected $clients;
