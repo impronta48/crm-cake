@@ -6,5 +6,5 @@ return [
     'Tags' => [],
     'EmailQueue' => [],
     'Search' => [],
-    'Fiskaly' => [],
+    // 'Fiskaly' => [],
 ];

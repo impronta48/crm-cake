@@ -76,7 +76,7 @@ class WhatsappController extends AppController
         $this->autoRender = false;
 
         $respData = [
-            'success' => true,
+            'success' => false,
             'data' => [] 
         ];
 
@@ -95,16 +95,28 @@ class WhatsappController extends AppController
                     $msg = json_encode($data);
                     // Log::info("WA send: " . $msg);
                     $conn->send($msg);
+                    $respData['success'] = true;
                 }
                 $conn->close();
 
             }, function ($e) {
                 Log::error("WebSocket Could not connect: {$e->getMessage()}");
             });
+
+            WhatsappService::getInstance()->forwardWebhook($data);
         }
 
         return $this->response
             ->withType('json')
             ->withStringBody(json_encode($respData));
+    }
+
+    public function downloadMedia($encrypt)
+    {
+        $this->autoRender = false;
+
+        $filePath = WhatsappService::getInstance()->downloadMedia($encrypt);
+
+        return $this->response->withFile($filePath);
     }
 }
