@@ -1,0 +1,24 @@
+One moment while associations are detected.
+
+Baking table class for Partner...
+
+Creating file /home/massimoi/www/crm/crm-cake/plugins/Fiskaly/src/Model/Table/PartnerTable.php
+Wrote `/home/massimoi/www/crm/crm-cake/plugins/Fiskaly/src/Model/Table/PartnerTable.php`
+
+Baking entity class for Partner...
+
+Creating file /home/massimoi/www/crm/crm-cake/plugins/Fiskaly/src/Model/Entity/Partner.php
+Wrote `/home/massimoi/www/crm/crm-cake/plugins/Fiskaly/src/Model/Entity/Partner.php`
+
+Baking test fixture for Partner...
+
+Do you want to overwrite? (y/n/a/q) 
+[n] > Skip `/home/massimoi/www/crm/crm-cake/plugins/Fiskaly/tests/Fixture/PartnerFixture.php`
+
+Bake is detecting possible fixtures...
+
+Baking test case for Fiskaly\Model\Table\PartnerTable ...
+
+Do you want to overwrite? (y/n/a/q) 
+[n] > Skip `/home/massimoi/www/crm/crm-cake/plugins/Fiskaly/tests/TestCase/Model/Table/PartnerTableTest.php`
+

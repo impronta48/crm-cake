@@ -8,12 +8,14 @@
 
 ## Fiskaly
 - [ ] Autenticazione
+- [ ] Usare la funziona CakeText::uuid();
 - [ ] Crea un nuovo parnter
     - [ ] Associa dati fiscali
     - [ ] Associa punto vendita
     - [ ] Associa cassa (pos)
 - [ ] Crea nuovo scontrino per partner
 - [ ] Annulla scontrino
+- [ ] Valutare di criptare i dati di fisconline nel db (vedi partner entity per modello)
 
 ## Doing
 - [ ] Testare contacts/index
