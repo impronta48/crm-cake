@@ -25,6 +25,7 @@ In app_local.php
     'base_url' => 'http://localhost',
     'port' => 4000,
     'api_key' => 'a6bc226axxxxxxxxxxxxxx',
+    'webhook' => 'http://freescout.drupalvm.test/whatsapp/webhook/1/185843707/3',
 ],
 
 'WebSocket' => [
