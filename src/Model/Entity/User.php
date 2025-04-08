@@ -11,6 +11,7 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property string $username
  * @property string $password
+ * @property string|null $telegram_id
  * @property int $group_id
  * @property \Cake\I18n\DateTime|null $created
  * @property \Cake\I18n\DateTime|null $modified
@@ -19,7 +20,7 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\Group $group
  * @property \App\Model\Entity\Persona $persona
  * @property \App\Model\Entity\Campaign[] $campaigns
- * @property \App\Model\Entity\Cespiticalendario[] $cespiticalendario
+ * @property \App\Model\Entity\Cespitecalendario[] $cespiticalendario
  */
 class User extends Entity
 {
@@ -30,11 +31,12 @@ class User extends Entity
      * be mass assigned. For security purposes, it is advised to set '*' to false
      * (or remove it), and explicitly make individual fields accessible as needed.
      *
-     * @var array
+     * @var array<string, bool>
      */
     protected array $_accessible = [
         'username' => true,
         'password' => true,
+        'telegram_id' => true,
         'group_id' => true,
         'created' => true,
         'modified' => true,
@@ -48,7 +50,7 @@ class User extends Entity
     /**
      * Fields that are excluded from JSON versions of the entity.
      *
-     * @var array
+     * @var list<string>
      */
     protected array $_hidden = [
         'password',

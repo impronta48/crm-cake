@@ -31,13 +31,19 @@ use Cake\ORM\Locator\TableLocator;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
 
+use Authentication\AuthenticationService;
+use Authentication\AuthenticationServiceInterface;
+use Authentication\AuthenticationServiceProviderInterface;
+use Authentication\Middleware\AuthenticationMiddleware;
+use \Psr\Http\Message\ServerRequestInterface;
+
 /**
  * Application setup class.
  *
  * This defines the bootstrapping logic and middleware layers you
  * want to use in your application.
  */
-class Application extends BaseApplication
+class Application extends BaseApplication implements AuthenticationServiceProviderInterface
 {
   /**
    * Load all the application configuration and bootstrap logic.
@@ -67,6 +73,8 @@ class Application extends BaseApplication
     if (Configure::read('debug')) {
       $this->addPlugin('DebugKit');
     }
+
+    $this->addPlugin('Authentication');
 
   }
 
@@ -99,7 +107,11 @@ class Application extends BaseApplication
       // Parse various types of encoded request bodies so that they are
       // available as array through $request->getData()
       // https://book.cakephp.org/4/en/controllers/middleware.html#body-parser-middleware
-      ->add(new BodyParserMiddleware());
+      ->add(new BodyParserMiddleware())
+
+      // Add the AuthenticationMiddleware. It should be
+        // after routing and body parser.
+      ->add(new AuthenticationMiddleware($this));
 
     // Cross Site Request Forgery (CSRF) Protection Middleware
     // https://book.cakephp.org/4/en/controllers/middleware.html#cross-site-request-forgery-csrf-middleware
@@ -139,5 +151,35 @@ class Application extends BaseApplication
     $this->addPlugin('Migrations');
 
     // Load more plugins here
+  }
+
+  /**
+     * Returns an authentication service instance.
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request Request
+     * @return \Authentication\AuthenticationServiceInterface
+     */
+  public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface 
+  {
+    $service = new AuthenticationService();
+
+    $service->loadAuthenticator('Authentication.Token', [
+      'queryParam' => 'crm-api-key',
+      'header' => 'x-crm-api-key',
+    ]);
+    $service->loadIdentifier('Authentication.Token', [
+      'resolver' => [
+          'className' => 'App\Identifier\Resolver\TokenResolver',
+      ],
+    ]);
+
+    $service->loadIdentifier('Authentication.JwtSubject');
+    $service->loadAuthenticator('Authentication.Jwt', [
+        'secretKey' => file_get_contents(CONFIG . 'jwtRS256.pem'),
+        'algorithm' => 'RS256',
+        'returnPayload' => false
+    ]);
+
+    return $service;
   }
 }

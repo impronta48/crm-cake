@@ -21,9 +21,9 @@ class UsersTableTest extends TestCase
     /**
      * Fixtures
      *
-     * @var array
+     * @var list<string>
      */
-    protected $fixtures = [
+    protected array $fixtures = [
         'app.Users',
         'app.Groups',
         'app.Personas',
@@ -36,7 +36,7 @@ class UsersTableTest extends TestCase
      *
      * @return void
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $config = $this->getTableLocator()->exists('Users') ? [] : ['className' => UsersTable::class];
@@ -48,7 +48,7 @@ class UsersTableTest extends TestCase
      *
      * @return void
      */
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->Users);
 
@@ -59,6 +59,7 @@ class UsersTableTest extends TestCase
      * Test validationDefault method
      *
      * @return void
+     * @uses \App\Model\Table\UsersTable::validationDefault()
      */
     public function testValidationDefault(): void
     {
@@ -69,6 +70,7 @@ class UsersTableTest extends TestCase
      * Test buildRules method
      *
      * @return void
+     * @uses \App\Model\Table\UsersTable::buildRules()
      */
     public function testBuildRules(): void
     {

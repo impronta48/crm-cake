@@ -1,23 +1,42 @@
 # conTrasporto
 
-## WhatsApp
+## Architettura integrazione WhatsApp
 
 Lo schema architetturale dell'integrazone con WhatsApp è riportato in `conTrasposto.drawio.png`
 
-### Configurazione
+## Note di installazione
 
-#### Crm-Vue
+### Crm-Vue
+
+Installare node22.14
+Per un bug nel modulo corepack di Node [Newly published versions of package managers distributed from npm cannot be installed due to key id mismatch. https://github.com/nodejs/corepack/issues/612], con la versione precedente non si riesce ad installare il nuxt Telegram Auth (https://halitsever.github.io/nuxt-telegram-auth/installation.html)
+
+Nuxt non poarte più a causa di questo errore:
+https://github.com/primefaces/primevue/issues/7434
+provo a lanciare npm install @primevue/forms -> OK, questo risolve
+
+## Configurazione
+
+### Crm-Vue
 
 In .env
 
 //API
 API_URL = https://l.crm.bikesquare.eu/api
+API_KEY = {value}
+
+// Freescout
+FREESCOUT_URL = http://freescout.drupalvm.test/
+
+// Telegram bot (per il login)
+TELEGRAM_BOT = contrasporto_ridotta_bot
+TELEGRAM_TOKEN = 7876209700:AAFi_n3nsRGq6fgGJpQTieUicpZqb85Sk1U
 
 //Chat Web Socket
 WS_URL = ws://localhost:5001
 WS_AUTH_TOKEN = bb0M8F9xRLxaFRr1g4MTS4rkczuJAR8d7GO52pc7vbBFvHj8QRjSY1uURwy6GPGw
 
-#### Crm-Cake
+### Crm-Cake
 
 In app_local.php
 
@@ -35,7 +54,19 @@ In app_local.php
     'cake_api_key' => 'KieCiqCcSzzE0LDmQisPKEj1pXDTxq6cUVPGyXXvKxfAlJTTvTsZ03DCPE1IJX2W',
 ],
 
-#### baileys-api-2.0.0
+### Collegamento WebSocket
+
+Per far partire il WebSocket chat server che gestisce la chat WhatsApp, eseguire:
+`bin/cake WebSocketChatServer`
+
+### Campagne
+Le campagne possono essere create via mail o via WhatsApp.
+L'invio effettivo viene eseguito da due Command, che devono essere configurati nel CronTab di crm-cake.
+I due command sono:
+- `bin/cake EmailQueue.sender -h`
+- `bin/cake WhatsappSender`
+
+### baileys-api-2.0.0
 
 In .env
 PORT="4000"
@@ -52,30 +83,16 @@ SSE_MAX_QR_GENERATION="10"
 SESSION_CONFIG_ID="session-config"
 API_KEY="a6bc226axxxxxxxxxxxxxx"
 
-#### Database
+### Database
 Eseguire:
 - `bin/cake migrations migrate`
 - `bin/cake cache clear_all`
 
-### Collegamento WebSocket
+
+## Collegamento WebSocket
 Il collegamento WebSocket viene implementato dalla libreria `ratchet/pawl`
 Ad oggi, 17/03/2024, risulta esserci un bug di retrocompatibilità nella versione `0.4.2`.
 Fino alla risoluzione del problema, fissiamo l'uso della sola versione `0.4.1`, come riportato sotto:
 `"ratchet/pawl": "0.4.1",`
-
-Per far partire il WebSocket chat server che gestisce la chat WhatsApp, eseguire:
-`bin/cake WebSocketChatServer`
-
-
-## Campagne
-
-Le campagne possono essere create via mail o via WhatsApp.
-L'invio effettivo viene eseguito da due Command, che devono essere configurati nel CronTab di crm-cake.
-I due command sono:
-- `bin/cake EmailQueue.sender -h`
-- `bin/cake WhatsappSender`
-
-
-
 
 
