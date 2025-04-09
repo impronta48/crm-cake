@@ -23,7 +23,7 @@ In .env
 
 //API
 API_URL = https://l.crm.bikesquare.eu/api
-API_KEY = {value}
+API_KEY = {valore configurato su crm-cake} // da verificare se serve ancora
 
 // Freescout
 FREESCOUT_URL = http://freescout.drupalvm.test/
@@ -40,11 +40,19 @@ WS_AUTH_TOKEN = bb0M8F9xRLxaFRr1g4MTS4rkczuJAR8d7GO52pc7vbBFvHj8QRjSY1uURwy6GPGw
 
 In app_local.php
 
+ 'App' => [
+    'base' => '/api',
+    'webroot' => 'webroot',
+    'fullBaseUrl' => 'https://l.crm.bikesquare.eu',
+    'imageBaseUrl' => 'img/',
+    'key' => 'R6PDl3A6lgvjV9UB0tMxbwoRHqbKSVo4', //api key per le chiamate server-to-server (da baileys e freescout)
+  ],
+
 'WhatsApp' => [
     'base_url' => 'http://localhost',
     'port' => 4000,
-    'api_key' => 'a6bc226axxxxxxxxxxxxxx',
-    'webhook' => 'http://freescout.drupalvm.test/whatsapp/webhook/1/185843707/3',
+    'api_key' => 'a6bc226axxxxxxxxxxxxxx', // valore API_KEY nel .env di baileys
+    'freescout_webhook' => 'http://freescout.drupalvm.test/whatsapp/webhook/1/3503896588/3', // riportato nella pagina di  configurazione di freescout
 ],
 
 'WebSocket' => [
@@ -71,7 +79,7 @@ I due command sono:
 In .env
 PORT="4000"
 NODE_ENV="development"
-URL_WEBHOOK="https://l.crm.bikesquare.eu/api/whatsapp/receive.json"
+URL_WEBHOOK="https://l.crm.bikesquare.eu/api/whatsapp/receive.json?crm-api-key={{valore configurato in crm-cake App.key}}"
 ENABLE_WEBHOOK="true"
 ENABLE_WEBSOCKET="true"
 BOT_NAME="Whatsapp Bot"
@@ -82,6 +90,13 @@ MAX_RECONNECT_RETRIES="5"
 SSE_MAX_QR_GENERATION="10"
 SESSION_CONFIG_ID="session-config"
 API_KEY="a6bc226axxxxxxxxxxxxxx"
+
+### freescout
+
+CRM_BASE_URL=https://l.crm.bikesquare.eu/api
+CRM_API_KEY = {{valore configurato in crm-cake App.key}}
+CRM_SSL=false
+APP_CURL_SSL_VERIFYPEER = false
 
 ### Database
 Eseguire:
