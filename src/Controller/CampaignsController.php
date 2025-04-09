@@ -67,7 +67,10 @@ class CampaignsController extends AppController
         $campaign = $this->Campaigns->newEmptyEntity();
         //Devo memorizzare anche i campi impliciti che non sono nel form
         $campaign->querystring = htmlspecialchars($_SERVER['QUERY_STRING']);
-        $campaign->user_id = $this->request->getAttribute('identity');
+        $identity = $this->request->getAttribute('identity');
+        $campaign->user_id = $identity['id'];
+        // $campaign->user_id = $this->request->getAttribute('identity');
+
         if (intval($id)) {
           $campaign->id = $id;
         }
