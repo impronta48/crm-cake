@@ -38,6 +38,10 @@ WS_AUTH_TOKEN = bb0M8F9xRLxaFRr1g4MTS4rkczuJAR8d7GO52pc7vbBFvHj8QRjSY1uURwy6GPGw
 
 ### Crm-Cake
 
+Settare in ./sites/default/migration.php il nome del progetto (necessario per pilotare correttamente le migrazioni, che vanno customizzate progetto per progetto, in modo da arrivare ad avere un DB compatibile con CRM)
+
+Eseguire la migrazione riportata in https://github.com/impronta48/cakephp-email-queue
+
 In app_local.php
 
  'App' => [
@@ -75,6 +79,9 @@ I due command sono:
 - `bin/cake WhatsappSender`
 
 ### baileys-api-2.0.0
+
+Creazione del DB baileys_api:
+npx prisma migrate (dev|deploy)
 
 In .env
 PORT="4000"

@@ -47,7 +47,7 @@ class UsersController extends AppController
             return;
         }
 
-        $user = $this->Users->find()->where(['telegram_id' => $telegram_chat_id])->first();
+        $user = $this->Users->find()->where(['telegram_chat_id' => $telegram_chat_id])->first();
         if (empty($user)) {
             return $this->response
                 ->withType('json')

@@ -84,9 +84,9 @@ class UsersTable extends Table
             ->notEmptyString('password');
 
         $validator
-            ->scalar('telegram_id')
-            ->maxLength('telegram_id', 255)
-            ->allowEmptyString('telegram_id');
+            ->scalar('telegram_chat_id')
+            ->maxLength('telegram_chat_id', 255)
+            ->allowEmptyString('telegram_chat_id');
 
         $validator
             ->integer('group_id')

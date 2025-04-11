@@ -22,7 +22,7 @@ class UsersFixture extends TestFixture
                 'id' => 1,
                 'username' => 'Lorem ipsum dolor sit amet',
                 'password' => '',
-                'telegram_id' => 'Lorem ipsum dolor sit amet',
+                'telegram_chat_id' => 'Lorem ipsum dolor sit amet',
                 'group_id' => 1,
                 'created' => '2025-04-04 14:23:30',
                 'modified' => '2025-04-04 14:23:30',

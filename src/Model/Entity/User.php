@@ -11,7 +11,7 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property string $username
  * @property string $password
- * @property string|null $telegram_id
+ * @property string|null $telegram_chat_id
  * @property int $group_id
  * @property \Cake\I18n\DateTime|null $created
  * @property \Cake\I18n\DateTime|null $modified
@@ -36,7 +36,7 @@ class User extends Entity
     protected array $_accessible = [
         'username' => true,
         'password' => true,
-        'telegram_id' => true,
+        'telegram_chat_id' => true,
         'group_id' => true,
         'created' => true,
         'modified' => true,
