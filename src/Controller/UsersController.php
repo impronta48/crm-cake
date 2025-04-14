@@ -5,7 +5,7 @@ namespace App\Controller;
 
 use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Exception\NotAcceptableException;
-
+use Cake\Core\Configure;
 /**
  * Users Controller
  *
@@ -37,7 +37,8 @@ class UsersController extends AppController
         }
 
         $auth_data = $this->request->getData('user');
-        $bot_token = $this->request->getData('bot_token');
+        $bot_token = Configure::read('Telegram.telergam_token');
+        
         $telegram_chat_id = $this->check_telegram_authorization($auth_data, $bot_token);
 
         if (empty($telegram_chat_id)) {
