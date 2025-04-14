@@ -102,6 +102,13 @@ class PersoneController extends AppController
     $query->find('search', search: $this->request->getQueryParams());
 
     $selection = false;
+
+    $filter = $this->request->getQuery('filter');
+    if ($filter != null && $filter != '') {
+      // $query->where(['Nazione' => $nazione]);
+      $selection = $selection || true;
+    }
+
     $tags = $this->request->getQuery('tags');
     if ($tags != null && count($tags) > 0) {
       $query->find('tagged', slug: $tags);
