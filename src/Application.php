@@ -165,7 +165,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
     $service->loadAuthenticator('Authentication.Token', [
       'queryParam' => 'crm-api-key',
-      'header' => 'x-crm-api-key',
+      'header' => 'x-crm-api-key', //X-API_KEY
     ]);
     $service->loadIdentifier('Authentication.Token', [
       'resolver' => [
