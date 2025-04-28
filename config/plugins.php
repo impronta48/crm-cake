@@ -7,4 +7,6 @@ return [
     'EmailQueue' => [],
     'Search' => [],
     'Fiskaly' => ['routes' => true],
+    'Analytics' => [],
+    // 'Reviews' => [],
 ];

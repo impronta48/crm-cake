@@ -8,7 +8,9 @@
 /webroot/js/node_modules/*
 /plugins/*
 config/sites/*
-
+config/Migrations/schema-dump-default.lock
+config/MigrationsIGas/schema-dump-default.lock
+config/MigrationsPrenota/schema-dump-default.lock
 
 # OS generated files #
 ######################

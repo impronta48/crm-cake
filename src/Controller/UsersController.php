@@ -37,8 +37,13 @@ class UsersController extends AppController
         }
 
         $auth_data = $this->request->getData('user');
-        $bot_token = Configure::read('Telegram.telergam_token');
-        
+        $domain_name = $this->request->getData('domain_name');
+        if(empty($domain_name)){
+            $bot_token = Configure::read('Telegram.telergam_token');  
+        }
+        else{
+            $bot_token = Configure::read('Telegram.'.$domain_name.'.telergam_token');   
+        }
         $telegram_chat_id = $this->check_telegram_authorization($auth_data, $bot_token);
 
         if (empty($telegram_chat_id)) {
