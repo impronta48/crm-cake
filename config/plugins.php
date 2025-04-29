@@ -9,4 +9,6 @@ return [
     'Fiskaly' => ['routes' => true],
     'Analytics' => [],
     // 'Reviews' => [],
+    //'Iscrizioni' => [],
+    //'Satispay' => []
 ];

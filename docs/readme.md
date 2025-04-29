@@ -117,4 +117,14 @@ Ad oggi, 17/03/2024, risulta esserci un bug di retrocompatibilità nella version
 Fino alla risoluzione del problema, fissiamo l'uso della sola versione `0.4.1`, come riportato sotto:
 `"ratchet/pawl": "0.4.1",`
 
+## Porting dati Iscrizioni su crm (una tantum)
+
+- Per controllare le persone aggiunte, controllare quali persone sono state aggiunte oggi:
+SELECT count(*) FROM igas_bikesquare.persone where created >= '2025-04-16 00:00:00';
+SELECT * FROM igas_bikesquare.persone where created >= '2025-04-16 00:00:00' order by id;
+
+- Eseguire lo script
+./script.sh import_participants_in_persone igas_bikesquare
+
+
 

@@ -28,7 +28,8 @@
         "mobiledetect/mobiledetectlib": "^4.8.03",
         "phpoffice/phpspreadsheet": "^1.23",
         "ratchet/pawl": "0.4.1",
-        "react/socket": "^1.16"
+        "react/socket": "^1.16",
+        "satispay/gbusiness-api-php-sdk": "^1.3"
     },
     "require-dev":
     {

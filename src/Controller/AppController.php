@@ -53,7 +53,11 @@ class AppController extends Controller
                 ],
                 'Crud.Add',
                 'Crud.Edit',
-                'Crud.View',
+                // 'Crud.View',
+                'view' => [
+                    'className' => 'Crud.View',
+                    'relatedModels' => true
+                ],
                 'Crud.Delete',
                 'delete-more' => [
                     'className' => 'Crud.Bulk/Delete'
