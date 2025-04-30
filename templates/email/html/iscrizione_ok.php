@@ -2,7 +2,7 @@
 
 use Cake\Utility\Text;
 ?>
-Caro <?= $participant->name ?>,<br>
+Caro <?= $participant->persona->Nome ?>,<br>
 ti sei iscritto con successo a: <?= $event->title ?> .<br>
 
 <h2>Informazioni</h2>
@@ -10,8 +10,8 @@ ti sei iscritto con successo a: <?= $event->title ?> .<br>
 
 <p>
   <b>Luogo</b>: <?= $event->place ?><br>
-  <b>Orario inizio</b>: <?= $event->start_time->nice() ?><br>
-  <b>Orario fine</b>: <?= $event->end_time->nice() ?><br>
+  <b>Orario inizio</b>: <?= $event->start_time?->nice() ?><br>
+  <b>Orario fine</b>: <?= $event->end_time?->nice() ?><br>
 </p>
 
 Se hai dubbi o dovessi modificare la tua iscrizione,<br>
