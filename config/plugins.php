@@ -8,7 +8,8 @@ return [
     'Search' => [],
     'Fiskaly' => ['routes' => true],
     'Analytics' => [],
-    // 'Reviews' => [],
+    'Reviews' => ['autoload' => true],
     //'Iscrizioni' => [],
     //'Satispay' => []
+    
 ];

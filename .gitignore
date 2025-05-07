@@ -23,6 +23,8 @@ Icon?
 ehthumbs.db
 Thumbs.db
 .directory
+config/jwtRS256_prenota.key
+config/jwtRS256_prenota.pem
 
 # Tool specific files #
 #######################

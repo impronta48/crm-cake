@@ -34,8 +34,11 @@ use Cake\Routing\Middleware\RoutingMiddleware;
 use Authentication\AuthenticationService;
 use Authentication\AuthenticationServiceInterface;
 use Authentication\AuthenticationServiceProviderInterface;
+use Authentication\Identifier\AbstractIdentifier;
+use Authentication\Identifier\IdentifierInterface;
 use Authentication\Middleware\AuthenticationMiddleware;
-use \Psr\Http\Message\ServerRequestInterface;
+use Cake\Routing\Router;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Application setup class.
@@ -162,7 +165,26 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
   public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface 
   {
     $service = new AuthenticationService();
-
+    // Check if plugin attribute exists and has a controller key
+    $params = $request->getAttribute('params');
+    $isReviewsController = (is_array($params) && isset($params['controller']) && ($params['controller'] == 'Reviews' || $params['controller'] == 'Users'));
+    
+    if ($isReviewsController) {
+    // //     // // Configure token-based authentication for API
+    // //   $service->loadAuthenticator('Authentication.Token', [
+    // //       'queryParam' => 'token',
+    // //       'header' => 'Authorization',
+    // //       'tokenPrefix' => 'Token',
+    // //       'dataField' => 'token',
+    // //   ]);
+      $service->loadIdentifier('Authentication.JwtSubject');
+      $service->loadAuthenticator('Authentication.Jwt', [
+        'secretKey' => file_get_contents(CONFIG . 'jwtRS256_prenota.pem'),
+        'algorithm' => 'RS256',
+        'returnPayload' => true,
+        'tokenPrefix' => 'bearer'
+    ]);       
+  } else {
     $service->loadAuthenticator('Authentication.Token', [
       'queryParam' => 'crm-api-key',
       'header' => 'x-crm-api-key', //X-API_KEY
@@ -175,10 +197,13 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
     $service->loadIdentifier('Authentication.JwtSubject');
     $service->loadAuthenticator('Authentication.Jwt', [
-        'secretKey' => file_get_contents(CONFIG . 'jwtRS256.pem'),
-        'algorithm' => 'RS256',
-        'returnPayload' => false
-    ]);
+      'secretKey' => file_get_contents(CONFIG . 'jwtRS256.pem'),
+      'algorithm' => 'RS256',
+      'returnPayload' => false
+  ]);
+  }
+    
+   
 
     return $service;
   }
