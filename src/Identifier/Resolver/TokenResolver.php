@@ -1,26 +1,13 @@
 <?php
-
 declare(strict_types=1);
-
-/**
- * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- *
- * Licensed under The MIT License
- * For full copyright and license information, please see the LICENSE.txt
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- * @link      https://cakephp.org CakePHP(tm) Project
- * @since     3.3.0
- * @license   https://opensource.org/licenses/mit-license.php MIT License
- */
 
 namespace App\Identifier\Resolver;
 
 use ArrayAccess;
 use Authentication\Identifier\Resolver\ResolverInterface;
 use Cake\Core\Configure;
+use Cake\Datasource\FactoryLocator;
+use Cake\Log\Log;
 
 class TokenResolver implements ResolverInterface
 {
@@ -33,12 +20,44 @@ class TokenResolver implements ResolverInterface
      */
     public function find(array $conditions, string $type = self::TYPE_AND): ArrayAccess|array|null 
     {
-        $api_key = Configure::read('App.key');
         if (array_key_exists('token', $conditions)) {
-            if ($conditions['token'] == $api_key) {
-                return ["1"];
+            $token = $conditions['token'];
+            
+            try {
+                // Process the token - strip Bearer prefix if present
+                if (strpos($token, 'Bearer ') === 0) {
+                    $token = substr($token, 7);
+                }
+                
+                // Get Users table
+                $usersTable = FactoryLocator::get('Table')->get('Users');
+                $userId = $usersTable->getUserIdFromAuthToken($token);
+                
+                if ($userId) {
+                    return $usersTable->get($userId, [
+                        'contain' => ['Persone']
+                    ]);
+                }
+                
+                // Try alternative methods if JWT token fails
+                // Check for a database token (if you store tokens in the users table)
+                try {
+                    $user = $usersTable->find()
+                        ->where(['api_token' => $token, 'active' => true])
+                        ->contain(['Persone'])
+                        ->first();
+                        
+                    if ($user) {
+                        return $user;
+                    }
+                } catch (\Exception $e) {
+                    Log::debug('Database token lookup error: ' . $e->getMessage());
+                }
+            } catch (\Exception $e) {
+                Log::debug('Token authentication error: ' . $e->getMessage());
             }
         }
+        
         return null;
     }
 }

@@ -17,7 +17,7 @@ class UsersController extends AppController
     public function beforeFilter(\Cake\Event\EventInterface $event)
     {
         parent::beforeFilter($event);
-        $this->Authentication->allowUnauthenticated(['telegramLogin']);
+        $this->Authentication->allowUnauthenticated(['telegramLogin','login']);
     }
 
     /**
@@ -134,5 +134,61 @@ class UsersController extends AppController
         return $this->response
             ->withType('json')
             ->withStringBody(json_encode($respData));
+    }
+    public function login()
+    {
+    //     // Check for redirect loops
+    // $redirectParam = $this->request->getQuery('redirect');
+    // if ($redirectParam && (strpos($redirectParam, '/users/login') !== false || strlen($redirectParam) > 200)) {
+    //     // Redirect loop detected, redirect to a safe location
+    //     return $this->redirect('/');
+    // }
+        // Check if we have POST data
+        if ($this->request->is('post')) {
+            // Get the submitted data
+            $data = $this->request->getData();
+            debug('Login attempt with username: ' . ($data['username'] ?? 'not provided'));
+            
+            // Check if user exists (for debugging)
+            $user = $this->Users->find()
+                ->where(['username' => $data['username'] ?? ''])
+                ->first();
+            
+            if ($user) {
+                debug('User found in database, ID: ' . $user->id);
+            } else {
+                debug('User not found in database');
+            }
+        }
+
+        $result = $this->Authentication->getResult();
+        $user = $this->Authentication->getIdentity();
+        $request = $this->getRequest();
+        $user = $request->getAttribute('identity');
+        // Check for redirect loops - prevent nested redirects
+    //    // For web interface, redirect to intended destination
+    //    $redirect = $redirectParam && !strpos($redirectParam, '/users/login') ? $redirectParam : '/';
+    //    return $this->redirect($redirect);
+
+        // // Add debugging
+        // debug($result);
+        // debug($result->getStatus());
+        // debug($result->getErrors());
+        
+        // If the user is logged in send them away.
+        if ($result && $result->isValid()) {
+            $target = $this->Authentication->getLoginRedirect() ?? '/home';
+            return $this->redirect($target);
+        }
+        
+        if ($this->request->is('post')) {
+            // Check for empty password
+            $data = $this->request->getData();
+            if (empty($data['password'])) {
+                $this->Flash->error('Password cannot be empty');
+            } else {
+                $this->Flash->error('Invalid username or password');
+            }
+        }
     }
 }
